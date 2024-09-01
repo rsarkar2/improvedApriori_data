@@ -1,0 +1,268 @@
+---
+title: "naive_setting_2_p_0.3_beta0"
+author: "Reetika Sarkar"
+output: html_document
+---
+
+```{r preamble}
+# version 2 computes the following for the simulated data
+# PRR: Proportional Reporting ratio
+# RR (or RRR): Relative Reporting ratio
+# ROR: Reporting Odds ratio
+
+##NOTE: Right now, only 2 itemsets are being considered (to expand later)
+
+# load library
+library(dplyr)
+
+#read file from drive
+data_loc <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/codes/data/naive_setting_3d_5ae/p_0_3/beta_0/sim_"
+
+results_loc <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/codes/results/naive_setting_3d_5ae/p_0_3/beta_0"
+  
+num_sim = 1000
+num_reports = 500
+min_support = 0.15 * num_reports
+tot_not_imp <- choose(8,2)
+```
+
+```{r define_spec_table}
+#num_tests <- 4 #confidence, prr, rr, ror
+conf_val <- c(0.4, 0.5, 0.6, 0.7)
+prr_val <- c(1, 1.2, 1.5, 2)
+rr_val <- c(1, 1.2, 1.5, 2)
+ror_val <- c(1, 1.2, 1.5, 2)
+
+num_conf_val = num_prr_val = num_rr_val = num_ror_val = 4
+spec_conf <- array(0, dim=c(num_sim,num_conf_val))
+spec_prr <- array(0, dim=c(num_sim,num_prr_val))
+spec_rr <- array(0, dim=c(num_sim,num_rr_val))
+spec_ror <- array(0, dim=c(num_sim,num_ror_val))
+dimnames(spec_conf)[[1]] = dimnames(spec_prr)[[1]] = dimnames(spec_rr)[[1]] = dimnames(spec_ror)[[1]] = paste0("sim", 1:num_sim)
+
+dimnames(spec_conf)[[2]] <- c(0.4, 0.5, 0.6, 0.7)
+dimnames(spec_prr)[[2]] <- c(1, 1.2, 1.5, 2)
+dimnames(spec_rr)[[2]] <- c(1, 1.2, 1.5, 2)
+dimnames(spec_ror)[[2]] <- c(1, 1.2, 1.5, 2)
+```
+
+```{r conf}
+#min_conf <- c(0.4, 0.5, 0.6, 0.7)
+for (sim in 1:num_sim) {
+  #read simulated data
+  data <- read.csv(file=paste0(data_loc, sim, ".csv"))
+  
+  #check all 1 itemsets and 2 itemsets that satisfy min_support
+
+  #1 itemsets
+  c1 <- data.frame(item=character(), count=integer(), 
+                   stringsAsFactors = FALSE) #1 item candidate sets
+  for (col in 1:ncol(data)) {
+    c1[col,1] <- colnames(data)[col]
+    c1[col,2] <- sum(data[,col])
+  }
+  
+  if (nrow(c1) == 0) {
+    print("no frequent 1 itemsets")
+  } else{
+    l1 <- data.frame(item=character(), count=integer(), 
+                     stringsAsFactors = FALSE) #1 item item sets
+    for (item in 1:nrow(c1)) {
+      if((as.integer(c1[item,2])) >= min_support) {
+        l1 <- rbind(l1, c1[item,])
+      }
+    }
+    rownames(l1) <- 1:nrow(l1)
+    # sel_item_num <- nrow(l1) #change number of transactions selected
+  }
+
+  # 2 itemsets
+  c2 <- data.frame(item1=character(), item2=character(), count=integer(), stringsAsFactors = FALSE) #2 item candidate sets
+  for (i in 1:(nrow(l1)-1)) {
+    for (j in (i+1):nrow(l1)) {
+      com <- c(l1[i,1], l1[j,1], sum((data[,l1[i,1]]==1) & (data[,l1[j,1]]==1)))
+      c2 <- rbind(c2, com)
+    }
+  }
+  names(c2) <- c("item1","item2","count")
+  
+  if (nrow(c2) == 0) {
+    print("no frequent 2 itemsets")
+  } else{
+    l2 <- data.frame(item1=character(), item2=character(), count=integer(), 
+                     stringsAsFactors = FALSE) #2 item item sets
+    for (item in 1:nrow(c2)) {
+      if(as.integer(c2[item,ncol(c2)]) >= min_support) {
+        l2 <- rbind(l2, c2[item,])
+      }
+    }
+    if (nrow(l2)!=0){
+      names(l2) <- c("item1","item2","count")
+      rownames(l2) <- 1:nrow(l2)
+    }
+  }
+  
+  for (conf in 1:num_conf_val) {
+    if (nrow(l2) == 0){
+      spec_conf[sim,conf] = 1
+    } else {
+      # 2 itemsets
+      freq2_conf <- data.frame(item1=character(), item2=character(), 
+                           support=integer(), confidence=numeric())
+      i1 <- 0
+      cf <- 0
+      for (row in 1:nrow(l2)) {
+        i1 <- which(l1[,1] == l2[row,1])
+        cf <- as.numeric(l2[row,3])/as.numeric(l1[i1,2])
+        if (cf >= conf_val[conf]) {
+          freq2_conf <- rbind(freq2_conf, c(unlist(l2[row,]), cf))
+        }
+      }
+  
+      colnames(freq2_conf) <- c("item1","item2","support","confidence")
+    
+      tot_sel_conf <- nrow(freq2_conf) # total important pairs selected using confidence
+      fp_conf <- tot_sel_conf # false positives (c)
+      tn_conf <- tot_not_imp - fp_conf # true negatives (d)
+      sp_conf <- tn_conf/tot_not_imp
+      spec_conf[sim,conf] <- sp_conf
+    }
+  }
+}
+```
+
+```{r prr}
+min_prr = min_rr = min_ror = c(1, 1.2, 1.5, 2)
+
+for (sim in 1:num_sim) {
+  #read simulated data
+  data <- read.csv(file=paste0(data_loc, sim, ".csv"))
+  
+  #check all 1 itemsets and 2 itemsets that satisfy min_support
+
+  #1 itemsets
+  c1 <- data.frame(item=character(), count=integer(), 
+                   stringsAsFactors = FALSE) #1 item candidate sets
+  for (col in 1:ncol(data)) {
+    c1[col,1] <- colnames(data)[col]
+    c1[col,2] <- sum(data[,col])
+  }
+  
+  if (nrow(c1) == 0) {
+    print("no frequent 1 itemsets")
+  } else{
+    l1 <- data.frame(item=character(), count=integer(), 
+                     stringsAsFactors = FALSE) #1 item item sets
+    for (item in 1:nrow(c1)) {
+      if((as.integer(c1[item,2])) >= min_support) {
+        l1 <- rbind(l1, c1[item,])
+      }
+    }
+    rownames(l1) <- 1:nrow(l1)
+    # sel_item_num <- nrow(l1) #change number of transactions selected
+  }
+
+  # 2 itemsets
+  c2 <- data.frame(item1=character(), item2=character(), count=integer(), stringsAsFactors = FALSE) #2 item candidate sets
+  for (i in 1:(nrow(l1)-1)) {
+    for (j in (i+1):nrow(l1)) {
+      com <- c(l1[i,1], l1[j,1], sum((data[,l1[i,1]]==1) & (data[,l1[j,1]]==1)))
+      c2 <- rbind(c2, com)
+    }
+  }
+  names(c2) <- c("item1","item2","count")
+  
+  if (nrow(c2) == 0) {
+    print("no frequent 2 itemsets")
+  } else{
+    l2 <- data.frame(item1=character(), item2=character(), count=integer(), 
+                     stringsAsFactors = FALSE) #2 item item sets
+    for (item in 1:nrow(c2)) {
+      if(as.integer(c2[item,ncol(c2)]) >= min_support) {
+        l2 <- rbind(l2, c2[item,])
+      }
+    }
+    if (nrow(l2)!=0){
+      names(l2) <- c("item1","item2","count")
+      rownames(l2) <- 1:nrow(l2)
+    }
+  }
+  
+  for (conf in 1:num_conf_val) {
+    if (nrow(l2) == 0){
+      spec_prr[sim,conf] = 1
+      spec_rr[sim,conf] = 1
+      spec_ror[sim,conf] = 1
+    } else {
+      # 2 itemsets
+      freq2_prr <- data.frame(item1=character(), item2=character(), 
+                          support=integer(),prr=numeric())
+      freq2_rr <- data.frame(item1=character(), item2=character(), 
+                          support=integer(), rr=numeric())
+      freq2_ror <- data.frame(item1=character(), item2=character(), 
+                          support=integer(), ror=numeric())
+
+      for (row in 1:nrow(l2)) {
+        a <- sum((data[,l2[row,1]] == 1) & (data[,l2[row,2]] == 1))
+        b <- sum((data[,l2[row,1]] == 1) & (data[,l2[row,2]] == 0))
+        c <- sum((data[,l2[row,1]] == 0) & (data[,l2[row,2]] == 1))
+        d <- sum((data[,l2[row,1]] == 0) & (data[,l2[row,2]] == 0))
+    
+        prr <- (a/(a + b + 0.00001))/((c+0.00001)/(c+d+0.00001))
+        
+        rr <- num_reports*a/((a + c)*(a + b)+0.00001)
+    
+        ror <- (a*d)/(c*b+0.00001)
+    
+        if(prr >= min_prr[conf]){
+          freq2_prr <- rbind(freq2_prr, c(unlist(l2[row,]), prr))
+        }
+        if(rr >= min_rr[conf]){
+          freq2_rr <- rbind(freq2_rr, c(unlist(l2[row,]), rr))
+        }
+        if(ror >= min_ror[conf]){
+          freq2_ror <- rbind(freq2_ror, c(unlist(l2[row,]), ror))
+        }
+      }
+      colnames(freq2_prr) <- c("item1","item2","support","prr")
+      colnames(freq2_rr) <- c("item1","item2","support","rr")
+      colnames(freq2_ror) <- c("item1","item2","support","ror")
+      
+      #tot_sel_conf <- nrow(freq2_conf) # total important pairs selected using confidence
+      tot_sel_prr <- nrow(freq2_prr) # total important pairs selected using prr
+      tot_sel_rr <- nrow(freq2_rr) # total important pairs selected using rr
+      tot_sel_ror <- nrow(freq2_ror) # total important pairs selected using ror
+  
+      fp_prr <- tot_sel_prr # false positives (c)
+      tn_prr <- tot_not_imp - fp_prr # true negatives (d)
+      sp_prr <- tn_prr/tot_not_imp
+      spec_prr[sim,conf] <- sp_prr
+  
+      fp_rr <- tot_sel_rr  # false positives (c)
+      tn_rr <- tot_not_imp - fp_rr # true negatives (d)
+      sp_rr <- tn_rr/tot_not_imp
+      spec_rr[sim,conf] <- sp_rr
+  
+      fp_ror <- tot_sel_ror # false positives (c)
+      tn_ror <- tot_not_imp - fp_ror # true negatives (d)
+      sp_ror <- tn_ror/tot_not_imp
+      spec_ror[sim,conf] <- sp_ror
+    }
+  }
+}
+```
+
+```{r averages}
+#mean_confidence values
+print("confidence")
+print(round(apply(spec_conf, MARGIN=2, FUN = mean, na.rm = T), 3))
+#mean prr values
+print("prr")
+print(round(apply(spec_prr, MARGIN=2, FUN = mean, na.rm = T), 3))
+#mean rr values
+print("rr")
+print(round(apply(spec_rr, MARGIN=2, FUN = mean, na.rm = T), 3))
+#mean ror values
+print("ror")
+print(round(apply(spec_ror, MARGIN=2, FUN = mean, na.rm = T), 3))
+```

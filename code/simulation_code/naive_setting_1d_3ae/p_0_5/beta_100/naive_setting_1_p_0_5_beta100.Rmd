@@ -1,0 +1,401 @@
+---
+title: "naive_setting_1_p_0.5_beta100"
+author: "Reetika Sarkar"
+output: html_document
+---
+
+```{r preamble}
+# version 2 computes the following for the simulated data
+# PRR: Proportional Reporting ratio
+# RR (or RRR): Relative Reporting ratio
+# ROR: Reporting Odds ratio
+
+##NOTE: Right now, only 2 itemsets are being considered (to expand later)
+
+# load library
+library(dplyr)
+
+#read file from drive
+data_loc <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/data/naive_setting_1d_3ae/p_0_5/beta_100/sim_"
+
+results_loc <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/naive_setting_1d_3ae/p_0_5/beta_100"
+  
+num_sim = 1000
+num_reports = 500
+min_support = 0.3 * num_reports
+#min_conf = 0.6
+#min_prr = min_ror = min_rr = 1
+```
+
+
+```{r important_itemsets}
+imp_2_set <- as.data.frame(rbind(c("d1", "a1")))
+names(imp_2_set) <- c("item1", "item2")
+```
+
+```{r define_acc_table}
+#t1 = Sys.time()
+#sim=3
+#num_tests <- 4 #confidence, prr, rr, ror
+conf_val <- c(0.4, 0.5, 0.6, 0.7)
+prr_val <- c(1, 1.2, 1.5, 2)
+rr_val <- c(1, 1.2, 1.5, 2)
+ror_val <- c(1, 1.2, 1.5, 2)
+
+num_conf_val = num_prr_val = num_rr_val = num_ror_val = 4
+num_measures <- 5 # Sn, Sp, PPV, NPV, F score
+#num_measures <- 11 # Sn, Sp, PPV, NPV, accuracy, Youden's Index, F score, LR+, LR-, DOR, DP
+acc_measures_conf <- array(0, dim=c(num_sim,num_measures,num_conf_val))
+acc_measures_prr <- array(0, dim=c(num_sim,num_measures,num_prr_val))
+acc_measures_rr <- array(0, dim=c(num_sim,num_measures,num_rr_val))
+acc_measures_ror <- array(0, dim=c(num_sim,num_measures,num_ror_val))
+dimnames(acc_measures_conf)[[1]] = dimnames(acc_measures_prr)[[1]] = dimnames(acc_measures_rr)[[1]] = dimnames(acc_measures_ror)[[1]] = paste0("sim", 1:num_sim)
+dimnames(acc_measures_conf)[[2]] = dimnames(acc_measures_prr)[[2]] = dimnames(acc_measures_rr)[[2]] = dimnames(acc_measures_ror)[[2]]= c("Sensitivity","Specificity","PPV","NPV","Total Accuracy")
+#dimnames(acc_measures_conf)[[2]] = dimnames(acc_measures_prr)[[2]] = dimnames(acc_measures_rr)[[2]] = dimnames(acc_measures_ror)[[2]]= c("Accuracy","Sensitivity","Specificity","PPV","NPV","Youden's Index","F score", "LR Positive", "LR Negative", "Diagnostic Odds Ratio", "Discriminant Power")
+dimnames(acc_measures_conf)[[3]] <- c(0.4, 0.5, 0.6, 0.7)
+dimnames(acc_measures_prr)[[3]] <- c(1, 1.2, 1.5, 2)
+dimnames(acc_measures_rr)[[3]] <- c(1, 1.2, 1.5, 2)
+dimnames(acc_measures_ror)[[3]] <- c(1, 1.2, 1.5, 2)
+```
+
+
+```{r conf}
+#min_conf <- c(0.4, 0.5, 0.6, 0.7)
+for (sim in 1:num_sim) {
+  #read simulated data
+  data <- read.csv(file=paste0(data_loc, sim, ".csv"))
+  
+  #check all 1 itemsets and 2 itemsets that satisfy min_support
+
+  #1 itemsets
+  c1 <- data.frame(item=character(), count=integer(), 
+                   stringsAsFactors = FALSE) #1 item candidate sets
+  for (col in 1:ncol(data)) {
+    c1[col,1] <- colnames(data)[col]
+    c1[col,2] <- sum(data[,col])
+  }
+  
+  if (nrow(c1) == 0) {
+    print("no frequent 1 itemsets")
+  } else{
+    l1 <- data.frame(item=character(), count=integer(), 
+                     stringsAsFactors = FALSE) #1 item item sets
+    for (item in 1:nrow(c1)) {
+      if((as.integer(c1[item,2])) >= min_support) {
+        l1 <- rbind(l1, c1[item,])
+      }
+    }
+    rownames(l1) <- 1:nrow(l1)
+    # sel_item_num <- nrow(l1) #change number of transactions selected
+  }
+
+  # 2 itemsets
+  c2 <- data.frame(item1=character(), item2=character(), count=integer(), 
+                   stringsAsFactors = FALSE) #2 item candidate sets
+  for (i in 1:(nrow(l1)-1)) {
+    for (j in (i+1):nrow(l1)) {
+      com <- c(l1[i,1], l1[j,1], sum((data[,l1[i,1]]==1) & (data[,l1[j,1]]==1)))
+      c2 <- rbind(c2, com)
+    }
+  }
+  names(c2) <- c("item1","item2","count")
+  
+  if (nrow(c2) == 0) {
+    print("no frequent 2 itemsets")
+  } else{
+    l2 <- data.frame(item1=character(), item2=character(), count=integer(), 
+                     stringsAsFactors = FALSE) #2 item item sets
+    for (item in 1:nrow(c2)) {
+      if(as.integer(c2[item,ncol(c2)]) >= min_support) {
+        l2 <- rbind(l2, c2[item,])
+      }
+    }
+    if (nrow(l2)!=0){
+      names(l2) <- c("item1","item2","count")
+      rownames(l2) <- 1:nrow(l2)
+    }
+  }
+  
+  for (conf in 1:num_conf_val) {
+    if (nrow(l2) == 0){
+      acc_measures_conf[sim,1:num_measures,conf] = rep(NA, num_measures)
+      #acc_measures_conf[sim,1:11,2] = rep(NA, 11)
+      #acc_measures_conf[sim,1:11,3] = rep(NA, 11)
+      #acc_measures_conf[sim,1:11,4] = rep(NA, 11)
+    } else {
+    # 2 itemsets
+      freq2_conf <- data.frame(item1=character(), item2=character(), 
+                           support=integer(), confidence=numeric())
+      i1 <- 0
+      cf <- 0
+      #if(nrow(l2) != 0){
+        for (row in 1:nrow(l2)) {
+          i1 <- which(l1[,1] == l2[row,1])
+          cf <- as.numeric(l2[row,3])/as.numeric(l1[i1,2])
+          if (cf >= conf_val[conf]) {
+            freq2_conf <- rbind(freq2_conf, c(unlist(l2[row,]), cf))
+          }
+        }
+      #} 
+  
+      colnames(freq2_conf) <- c("item1","item2","support","confidence")
+    
+      tot_imp <- nrow(imp_2_set) # tp + fn : total associated pairs
+      tot_not_imp <- choose(4, 2) - tot_imp # fp + tn : total non-associated pairs
+  
+      tot_sel_conf <- nrow(freq2_conf) # total important pairs selected using confidence
+      
+      ct_conf = 0
+      if(nrow(freq2_conf) != 0){
+        for (row in 1:nrow(freq2_conf)) {
+          ct_conf <- ifelse(identical(freq2_conf[row,1:2],imp_2_set), (ct_conf+1), ct_conf)
+        }
+      }
+    
+      tp_conf <- ct_conf # true positives (a)
+      fp_conf <- tot_sel_conf - tp_conf # false positives (b)
+      fn_conf <- tot_imp - tp_conf # false negatives (c)
+      tn_conf <- tot_not_imp - fp_conf # true negatives (d)
+    
+      sn_conf <- tp_conf/(tp_conf+fn_conf+0.00001)
+      sp_conf <- tn_conf/(tn_conf+fp_conf+0.00001)
+      ppv_conf <- tp_conf/(tp_conf+fp_conf+0.00001)
+      npv_conf <- tn_conf/(tn_conf+fn_conf+0.00001)
+      acc_conf <- (tp_conf+tn_conf)/(tp_conf+fp_conf+fn_conf+tn_conf)
+      y_index_conf <- ifelse((sn_conf + sp_conf - 1 < 0), 0, sn_conf + sp_conf - 1)
+      fscore_conf <- 2 * (ppv_conf * sn_conf) / (ppv_conf + sn_conf + 0.0001)
+      lr_pos_conf <- sn_conf/(1-sp_conf+0.00001)
+      lr_neg_conf <- (1-sn_conf)/sp_conf
+      dor_conf <- lr_pos_conf/lr_neg_conf
+      x_conf <- sn_conf/(1-sn_conf+0.00001)
+      y_conf <- sp_conf/(1-sp_conf+0.00001)
+      dp_conf <- sqrt(3)*abs(log(x_conf+0.00001) + log(y_conf+0.00001))/nrow(c2)
+      tot_acc_conf <- (tp_conf + tn_conf) / (tot_imp + tot_not_imp)
+  
+      acc_measures_conf[sim,1:num_measures,conf] <- c(sn_conf, sp_conf, ppv_conf, npv_conf, tot_acc_conf)
+  
+      #acc_measures_conf[sim,1:11,conf] <- c(acc_conf, sn_conf, sp_conf, ppv_conf, npv_conf, y_index_conf, fscore_conf, lr_pos_conf, lr_neg_conf, dor_conf, dp_conf)
+    }
+  }
+}
+```
+
+```{r prr}
+min_prr = min_rr = min_ror = c(1, 1.2, 1.5, 2)
+
+for (sim in 1:num_sim) {
+  #read simulated data
+  data <- read.csv(file=paste0(data_loc, sim, ".csv"))
+  
+  #check all 1 itemsets and 2 itemsets that satisfy min_support
+
+  #1 itemsets
+  c1 <- data.frame(item=character(), count=integer(), 
+                   stringsAsFactors = FALSE) #1 item candidate sets
+  for (col in 1:ncol(data)) {
+    c1[col,1] <- colnames(data)[col]
+    c1[col,2] <- sum(data[,col])
+  }
+  
+  if (nrow(c1) == 0) {
+    print("no frequent 1 itemsets")
+  } else{
+    l1 <- data.frame(item=character(), count=integer(), 
+                     stringsAsFactors = FALSE) #1 item item sets
+    for (item in 1:nrow(c1)) {
+      if((as.integer(c1[item,2])) >= min_support) {
+        l1 <- rbind(l1, c1[item,])
+      }
+    }
+    rownames(l1) <- 1:nrow(l1)
+    # sel_item_num <- nrow(l1) #change number of transactions selected
+  }
+
+  # 2 itemsets
+  c2 <- data.frame(item1=character(), item2=character(), count=integer(), 
+                   stringsAsFactors = FALSE) #2 item candidate sets
+  for (i in 1:(nrow(l1)-1)) {
+    for (j in (i+1):nrow(l1)) {
+      com <- c(l1[i,1], l1[j,1], sum((data[,l1[i,1]]==1) & (data[,l1[j,1]]==1)))
+      c2 <- rbind(c2, com)
+    }
+  }
+  names(c2) <- c("item1","item2","count")
+  
+  if (nrow(c2) == 0) {
+    print("no frequent 2 itemsets")
+  } else{
+    l2 <- data.frame(item1=character(), item2=character(), count=integer(), 
+                     stringsAsFactors = FALSE) #2 item item sets
+    for (item in 1:nrow(c2)) {
+      if(as.integer(c2[item,ncol(c2)]) >= min_support) {
+        l2 <- rbind(l2, c2[item,])
+      }
+    }
+    if (nrow(l2)!=0){
+      names(l2) <- c("item1","item2","count")
+      rownames(l2) <- 1:nrow(l2)
+    }
+  }
+  
+  for (conf in 1:num_conf_val) {
+    if (nrow(l2) == 0){
+      acc_measures_prr[sim,1:num_measures,conf] = rep(NA, num_measures)
+      acc_measures_rr[sim,1:num_measures,conf] = rep(NA, num_measures)
+      acc_measures_ror[sim,1:num_measures,conf] = rep(NA, num_measures)
+    } else {
+      # 2 itemsets
+      freq2_prr <- data.frame(item1=character(), item2=character(), 
+                          support=integer(),prr=numeric())
+      freq2_rr <- data.frame(item1=character(), item2=character(), 
+                          support=integer(), rr=numeric())
+      freq2_ror <- data.frame(item1=character(), item2=character(), 
+                          support=integer(), ror=numeric())
+
+      for (row in 1:nrow(l2)) {
+        a <- sum((data[,l2[row,1]] == 1) & (data[,l2[row,2]] == 1))
+        b <- sum((data[,l2[row,1]] == 1) & (data[,l2[row,2]] == 0))
+        c <- sum((data[,l2[row,1]] == 0) & (data[,l2[row,2]] == 1))
+        d <- sum((data[,l2[row,1]] == 0) & (data[,l2[row,2]] == 0))
+    
+        prr <- (a/(a + b + 0.00001))/((c+0.00001)/(c+d+0.00001))
+        
+        rr <- num_reports*a/((a + c)*(a + b)+0.00001)
+    
+        ror <- (a*d)/(c*b+0.00001)
+    
+        if(prr >= min_prr[conf]){
+          freq2_prr <- rbind(freq2_prr, c(unlist(l2[row,]), prr))
+        }
+        if(rr >= min_rr[conf]){
+          freq2_rr <- rbind(freq2_rr, c(unlist(l2[row,]), rr))
+        }
+        if(ror >= min_ror[conf]){
+          freq2_ror <- rbind(freq2_ror, c(unlist(l2[row,]), ror))
+        }
+      }
+      colnames(freq2_prr) <- c("item1","item2","support","prr")
+      colnames(freq2_rr) <- c("item1","item2","support","rr")
+      colnames(freq2_ror) <- c("item1","item2","support","ror")
+      
+      tot_imp <- nrow(imp_2_set) # tp + fn : total associated pairs
+      tot_not_imp <- choose(4,2) - tot_imp # fp + tn : total non-associated pairs
+  
+      #tot_sel_conf <- nrow(freq2_conf) # total important pairs selected using confidence
+      tot_sel_prr <- nrow(freq2_prr) # total important pairs selected using prr
+      tot_sel_rr <- nrow(freq2_rr) # total important pairs selected using rr
+      tot_sel_ror <- nrow(freq2_ror) # total important pairs selected using ror
+  
+      ct_prr = ct_rr = ct_ror = 0
+      
+      if(nrow(freq2_prr) != 0){
+        for (row in 1:nrow(freq2_prr)) {
+          ct_prr <- ifelse(identical(freq2_prr[row,1:2],imp_2_set), (ct_prr+1), ct_prr)
+        }
+      }
+  
+      tp_prr <- ct_prr # true negatives (a)
+      fp_prr <- tot_sel_prr - tp_prr # false positives (b)
+      fn_prr <- tot_imp - tp_prr # false negatives (c)
+      tn_prr <- tot_not_imp - fp_prr # true negatives (d)
+  
+      sn_prr <- tp_prr/(tp_prr+fn_prr+0.00001)
+      sp_prr <- tn_prr/(tn_prr+fp_prr+0.00001)
+      ppv_prr <- tp_prr/(tp_prr+fp_prr+0.00001)
+      npv_prr <- tn_prr/(tn_prr+fn_prr+0.00001)
+      acc_prr <- (tp_prr+tn_prr)/(tp_prr+fp_prr+fn_prr+tn_prr)
+      y_index_prr <- ifelse((sn_prr + sp_prr - 1 < 0), 0, sn_prr + sp_prr - 1)
+      fscore_prr <- 2 * (ppv_prr * sn_prr) / (ppv_prr + sn_prr + 0.00001)
+      lr_pos_prr <- sn_prr/(1-sp_prr+0.00001)
+      lr_neg_prr <- (1-sn_prr)/(sp_prr+0.00001)
+      dor_prr <- lr_pos_prr/lr_neg_prr
+      x_prr <- sn_prr/(1-sn_prr+0.00001)
+      y_prr <- sp_prr/(1-sp_prr+0.00001)
+      dp_prr <- sqrt(3)*(log(x_prr+0.00001) + log(y_prr+0.00001))/nrow(c2)
+      tot_acc_prr <- (tp_prr + tn_prr) / (tot_imp + tot_not_imp)
+  
+      acc_measures_prr[sim,1:num_measures,conf] <- c(sn_prr, sp_prr, ppv_prr, npv_prr, tot_acc_prr)
+  
+      #acc_measures_prr[sim,1:11,conf] <- c(acc_prr, sn_prr, sp_prr, ppv_prr, npv_prr, y_index_prr, fscore_prr, lr_pos_prr, lr_neg_prr, dor_prr, dp_prr)
+  
+      if(nrow(freq2_rr) != 0){
+        for (row in 1:nrow(freq2_rr)) {
+          ct_rr <- ifelse(identical(freq2_rr[row,1:2],imp_2_set), (ct_rr+1), ct_rr)
+        }
+      }
+  
+      tp_rr <- ct_rr # true negatives (a)
+      fp_rr <- tot_sel_rr - tp_rr # false positives (b)
+      fn_rr <- tot_imp - tp_rr # false negatives (c)
+      tn_rr <- tot_not_imp - fp_rr # true negatives (d)
+  
+      sn_rr <- tp_rr/(tp_rr+fn_rr+0.00001)
+      sp_rr <- tn_rr/(tn_rr+fp_rr+0.00001)
+      ppv_rr <- tp_rr/(tp_rr+fp_rr+0.00001)
+      npv_rr <- tn_rr/(tn_rr+fn_rr+0.00001)
+      acc_rr <- (tp_rr+tn_rr)/(tp_rr+fp_rr+fn_rr+tn_rr)
+      y_index_rr <- ifelse((sn_rr + sp_rr - 1 < 0), 0, sn_rr + sp_rr - 1)
+      fscore_rr <- 2 * (ppv_rr * sn_rr) / (ppv_rr + sn_rr + 0.00001)
+      lr_pos_rr <- sn_rr/(1-sp_rr+0.00001)
+      lr_neg_rr <- (1-sn_rr)/(sp_rr+0.00001)
+      dor_rr <- lr_pos_rr/lr_neg_rr
+      x_rr <- sn_rr/(1-sn_rr+0.00001)
+      y_rr <- sp_rr/(1-sp_rr+0.00001)
+      dp_rr <- sqrt(3)*abs((log(x_rr+0.00001) + log(y_rr+0.00001))/nrow(c2))
+      tot_acc_rr <- (tp_rr + tn_rr) / (tot_imp + tot_not_imp)
+  
+      acc_measures_rr[sim,1:num_measures,conf] <- c(sn_rr, sp_rr, ppv_rr, npv_rr, tot_acc_rr)
+  
+      if(nrow(freq2_ror) != 0){
+        for (row in 1:nrow(freq2_ror)) {
+          ct_ror <- ifelse(identical(freq2_ror[row,1:2],imp_2_set), (ct_ror+1), ct_ror)
+        }
+      }
+  
+      tp_ror <- ct_ror # true negatives (a)
+      fp_ror <- tot_sel_ror - tp_ror # false positives (b)
+      fn_ror <- tot_imp - tp_ror # false negatives (c)
+      tn_ror <- tot_not_imp - fp_ror # true negatives (d)
+  
+      sn_ror <- tp_ror/(tp_ror+fn_ror+0.00001)
+      sp_ror <- tn_ror/(tn_ror+fp_ror+0.00001)
+      ppv_ror <- tp_ror/(tp_ror+fp_ror+0.00001)
+      npv_ror <- tn_ror/(tn_ror+fn_ror+0.00001)
+      acc_ror <- (tp_ror+tn_ror)/(tp_ror+fp_ror+fn_ror+tn_ror)
+      y_index_ror <- ifelse((sn_ror + sp_ror - 1 < 0), 0, sn_ror + sp_ror - 1)
+      fscore_ror <- 2 * (ppv_ror * sn_ror) / (ppv_ror + sn_ror +0.00001)
+      lr_pos_ror <- sn_ror/(1-sp_ror+0.00001)
+      lr_neg_ror <- (1-sn_ror)/(sp_ror+0.00001)
+      dor_ror <- lr_pos_ror/lr_neg_ror
+      x_ror <- sn_ror/(1-sn_ror+0.00001)
+      y_ror <- sp_ror/(1-sp_ror+0.00001)
+      dp_ror <- sqrt(3)*abs((log(x_ror+0.00001) + log(y_ror+0.00001))/nrow(c2))
+      tot_acc_ror <- (tp_ror + tn_ror) / (tot_imp + tot_not_imp)
+  
+      acc_measures_ror[sim,1:num_measures,conf] <- c(sn_ror, sp_ror, ppv_ror, npv_ror, tot_acc_ror)
+    }
+  }
+}
+```
+
+```{r averages}
+#mean_confidence values
+print("confidence")
+print(round(apply(acc_measures_conf, MARGIN=c(2,3), FUN = mean, na.rm = T), 3))
+#mean prr values
+print("prr")
+print(round(apply(acc_measures_prr, MARGIN=c(2,3), FUN = mean, na.rm = T), 3))
+#mean rr values
+print("rr")
+print(round(apply(acc_measures_rr, MARGIN=c(2,3), FUN = mean, na.rm = T), 3))
+#mean ror values
+print("ror")
+print(round(apply(acc_measures_ror, MARGIN=c(2,3), FUN = mean, na.rm = T), 3))
+```
+
+```{r save_results}
+write.table(x = round(apply(acc_measures_conf, MARGIN=c(2,3), FUN = mean, na.rm = T), 3), file = paste0(results_loc,"/conf.csv"), row.names = T, col.names = T)
+write.table(x = round(apply(acc_measures_prr, MARGIN=c(2,3), FUN = mean, na.rm = T), 3), file = paste0(results_loc,"/prr.csv"), row.names = T, col.names = T)
+write.table(x = round(apply(acc_measures_rr, MARGIN=c(2,3), FUN = mean, na.rm = T), 3), file = paste0(results_loc,"/rr.csv"), row.names = T, col.names = T)
+write.table(x = round(apply(acc_measures_ror, MARGIN=c(2,3), FUN = mean, na.rm = T), 3), file = paste0(results_loc,"/ror.csv"), row.names = T, col.names = T)
+```
