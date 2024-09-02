@@ -1,0 +1,676 @@
+---
+title: "Plots for accuracy measures for p=0.5"
+author: "Reetika Sarkar"
+output: html_document
+---
+
+```{r load_libraries}
+## dependent SETTING 2: p=0.5
+#plots for accuracy measures
+
+library(ggplot2)
+library(gridExtra)
+library(ggpubr)
+library(greekLetters)
+library(repr)
+```
+
+```{r read_results_data}
+#read file from drive
+results_loc_beta1 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/naive_setting_5d_10ae/p_0_5/beta_1"
+results_loc_beta10 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/naive_setting_5d_10ae/p_0_5/beta_10"
+results_loc_beta50 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/naive_setting_5d_10ae/p_0_5/beta_50"
+results_loc_beta100 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/naive_setting_5d_10ae/p_0_5/beta_100"
+
+results_loc_beta1_dep_0_3 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_3/beta_1/model_1"
+results_loc_beta10_dep_0_3 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_3/beta_10/model_1"
+results_loc_beta50_dep_0_3 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_3/beta_50/model_1"
+results_loc_beta100_dep_0_3 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_3/beta_100/model_1"
+
+results_loc_beta1_dep_neg0_3 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_3/beta_1/model_2"
+results_loc_beta10_dep_neg0_3 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_3/beta_10/model_2"
+results_loc_beta50_dep_neg0_3 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_3/beta_50/model_2"
+results_loc_beta100_dep_neg0_3 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_3/beta_100/model_2"
+
+results_loc_beta1_dep_0_5 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_5/beta_1/model_1"
+results_loc_beta10_dep_0_5 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_5/beta_10/model_1"
+results_loc_beta50_dep_0_5 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_5/beta_50/model_1"
+results_loc_beta100_dep_0_5 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_5/beta_100/model_1"
+
+results_loc_beta1_dep_neg0_5 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_5/beta_1/model_2"
+results_loc_beta10_dep_neg0_5 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_5/beta_10/model_2"
+results_loc_beta50_dep_neg0_5 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_5/beta_50/model_2"
+results_loc_beta100_dep_neg0_5 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_5/beta_100/model_2"
+
+results_loc_beta1_dep_0_7 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_7/beta_1/model_1"
+results_loc_beta10_dep_0_7 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_7/beta_10/model_1"
+results_loc_beta50_dep_0_7 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_7/beta_50/model_1"
+results_loc_beta100_dep_0_7 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_7/beta_100/model_1"
+
+results_loc_beta1_dep_neg0_7 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_7/beta_1/model_2"
+results_loc_beta10_dep_neg0_7 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_7/beta_10/model_2"
+results_loc_beta50_dep_neg0_7 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_7/beta_50/model_2"
+results_loc_beta100_dep_neg0_7 <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/results/correlated_setting_5d_10ae/p_0_5/cor_0_7/beta_100/model_2"
+```
+
+```{r read_conf_values}
+#read conf values for each beta 
+# independent setting
+conf_results_beta1 <- read.table(paste0(results_loc_beta1,"/conf.csv"), header = T)
+conf_results_beta10 <- read.table(paste0(results_loc_beta10,"/conf.csv"), header = T)
+conf_results_beta50 <- read.table(paste0(results_loc_beta50,"/conf.csv"), header = T)
+conf_results_beta100 <- read.table(paste0(results_loc_beta100,"/conf.csv"), header = T)
+
+# dependent, cor = 0.3
+conf_results_beta1_dep_0_3 <- read.table(paste0(results_loc_beta1_dep_0_3,"/conf.csv"), header = T)
+conf_results_beta10_dep_0_3 <- read.table(paste0(results_loc_beta10_dep_0_3,"/conf.csv"), header = T)
+conf_results_beta50_dep_0_3 <- read.table(paste0(results_loc_beta50_dep_0_3,"/conf.csv"), header = T)
+conf_results_beta100_dep_0_3 <- read.table(paste0(results_loc_beta100_dep_0_3,"/conf.csv"), header = T)
+
+# dependent, cor = -0.3
+conf_results_beta1_dep_neg0_3 <- read.table(paste0(results_loc_beta1_dep_neg0_3,"/conf.csv"), header = T)
+conf_results_beta10_dep_neg0_3 <- read.table(paste0(results_loc_beta10_dep_neg0_3,"/conf.csv"), header = T)
+conf_results_beta50_dep_neg0_3 <- read.table(paste0(results_loc_beta50_dep_neg0_3,"/conf.csv"), header = T)
+conf_results_beta100_dep_neg0_3 <- read.table(paste0(results_loc_beta100_dep_neg0_3,"/conf.csv"), header = T)
+
+# dependent, cor = 0.5
+conf_results_beta1_dep_0_5 <- read.table(paste0(results_loc_beta1_dep_0_5,"/conf.csv"), header = T)
+conf_results_beta10_dep_0_5 <- read.table(paste0(results_loc_beta10_dep_0_5,"/conf.csv"), header = T)
+conf_results_beta50_dep_0_5 <- read.table(paste0(results_loc_beta50_dep_0_5,"/conf.csv"), header = T)
+conf_results_beta100_dep_0_5 <- read.table(paste0(results_loc_beta100_dep_0_5,"/conf.csv"), header = T)
+
+# dependent, cor = -0.5
+conf_results_beta1_dep_neg0_5 <- read.table(paste0(results_loc_beta1_dep_neg0_5,"/conf.csv"), header = T)
+conf_results_beta10_dep_neg0_5 <- read.table(paste0(results_loc_beta10_dep_neg0_5,"/conf.csv"), header = T)
+conf_results_beta50_dep_neg0_5 <- read.table(paste0(results_loc_beta50_dep_neg0_5,"/conf.csv"), header = T)
+conf_results_beta100_dep_neg0_5 <- read.table(paste0(results_loc_beta100_dep_neg0_5,"/conf.csv"), header = T)
+
+# dependent, cor = 0.7
+conf_results_beta1_dep_0_7 <- read.table(paste0(results_loc_beta1_dep_0_7,"/conf.csv"), header = T)
+conf_results_beta10_dep_0_7 <- read.table(paste0(results_loc_beta10_dep_0_7,"/conf.csv"), header = T)
+conf_results_beta50_dep_0_7 <- read.table(paste0(results_loc_beta50_dep_0_7,"/conf.csv"), header = T)
+conf_results_beta100_dep_0_7 <- read.table(paste0(results_loc_beta100_dep_0_7,"/conf.csv"), header = T)
+
+# dependent, cor = -0.7
+conf_results_beta1_dep_neg0_7 <- read.table(paste0(results_loc_beta1_dep_neg0_7,"/conf.csv"), header = T)
+conf_results_beta10_dep_neg0_7 <- read.table(paste0(results_loc_beta10_dep_neg0_7,"/conf.csv"), header = T)
+conf_results_beta50_dep_neg0_7 <- read.table(paste0(results_loc_beta50_dep_neg0_7,"/conf.csv"), header = T)
+conf_results_beta100_dep_neg0_7 <- read.table(paste0(results_loc_beta100_dep_neg0_7,"/conf.csv"), header = T)
+```
+
+```{r read_prr_values}
+###### read prr values for each beta
+prr_results_beta1 <- read.table(paste0(results_loc_beta1,"/prr.csv"), header = T)
+prr_results_beta10 <- read.table(paste0(results_loc_beta10,"/prr.csv"), header = T)
+prr_results_beta50 <- read.table(paste0(results_loc_beta50,"/prr.csv"), header = T)
+prr_results_beta100 <- read.table(paste0(results_loc_beta100,"/prr.csv"), header = T)
+
+# dependent, cor = 0.3
+prr_results_beta1_dep_0_3 <- read.table(paste0(results_loc_beta1_dep_0_3,"/prr.csv"), header = T)
+prr_results_beta10_dep_0_3 <- read.table(paste0(results_loc_beta10_dep_0_3,"/prr.csv"), header = T)
+prr_results_beta50_dep_0_3 <- read.table(paste0(results_loc_beta50_dep_0_3,"/prr.csv"), header = T)
+prr_results_beta100_dep_0_3 <- read.table(paste0(results_loc_beta100_dep_0_3,"/prr.csv"), header = T)
+
+# dependent, cor = -0.3
+prr_results_beta1_dep_neg0_3 <- read.table(paste0(results_loc_beta1_dep_neg0_3,"/prr.csv"), header = T)
+prr_results_beta10_dep_neg0_3 <- read.table(paste0(results_loc_beta10_dep_neg0_3,"/prr.csv"), header = T)
+prr_results_beta50_dep_neg0_3 <- read.table(paste0(results_loc_beta50_dep_neg0_3,"/prr.csv"), header = T)
+prr_results_beta100_dep_neg0_3 <- read.table(paste0(results_loc_beta100_dep_neg0_3,"/prr.csv"), header = T)
+
+# dependent, cor = 0.5
+prr_results_beta1_dep_0_5 <- read.table(paste0(results_loc_beta1_dep_0_5,"/prr.csv"), header = T)
+prr_results_beta10_dep_0_5 <- read.table(paste0(results_loc_beta10_dep_0_5,"/prr.csv"), header = T)
+prr_results_beta50_dep_0_5 <- read.table(paste0(results_loc_beta50_dep_0_5,"/prr.csv"), header = T)
+prr_results_beta100_dep_0_5 <- read.table(paste0(results_loc_beta100_dep_0_5,"/prr.csv"), header = T)
+
+# dependent, cor = -0.5
+prr_results_beta1_dep_neg0_5 <- read.table(paste0(results_loc_beta1_dep_neg0_5,"/prr.csv"), header = T)
+prr_results_beta10_dep_neg0_5 <- read.table(paste0(results_loc_beta10_dep_neg0_5,"/prr.csv"), header = T)
+prr_results_beta50_dep_neg0_5 <- read.table(paste0(results_loc_beta50_dep_neg0_5,"/prr.csv"), header = T)
+prr_results_beta100_dep_neg0_5 <- read.table(paste0(results_loc_beta100_dep_neg0_5,"/prr.csv"), header = T)
+
+# dependent, cor = 0.7
+prr_results_beta1_dep_0_7 <- read.table(paste0(results_loc_beta1_dep_0_7,"/prr.csv"), header = T)
+prr_results_beta10_dep_0_7 <- read.table(paste0(results_loc_beta10_dep_0_7,"/prr.csv"), header = T)
+prr_results_beta50_dep_0_7 <- read.table(paste0(results_loc_beta50_dep_0_7,"/prr.csv"), header = T)
+prr_results_beta100_dep_0_7 <- read.table(paste0(results_loc_beta100_dep_0_7,"/prr.csv"), header = T)
+
+# dependent, cor = -0.7
+prr_results_beta1_dep_neg0_7 <- read.table(paste0(results_loc_beta1_dep_neg0_7,"/prr.csv"), header = T)
+prr_results_beta10_dep_neg0_7 <- read.table(paste0(results_loc_beta10_dep_neg0_7,"/prr.csv"), header = T)
+prr_results_beta50_dep_neg0_7 <- read.table(paste0(results_loc_beta50_dep_neg0_7,"/prr.csv"), header = T)
+prr_results_beta100_dep_neg0_7 <- read.table(paste0(results_loc_beta100_dep_neg0_7,"/prr.csv"), header = T)
+```
+
+```{r read_rr_values}
+##### read rr values for each beta
+rr_results_beta1 <- read.table(paste0(results_loc_beta1,"/rr.csv"), header = T)
+rr_results_beta10 <- read.table(paste0(results_loc_beta10,"/rr.csv"), header = T)
+rr_results_beta50 <- read.table(paste0(results_loc_beta50,"/rr.csv"), header = T)
+rr_results_beta100 <- read.table(paste0(results_loc_beta100,"/rr.csv"), header = T)
+
+# dependent, cor = 0.3
+rr_results_beta1_dep_0_3 <- read.table(paste0(results_loc_beta1_dep_0_3,"/rr.csv"), header = T)
+rr_results_beta10_dep_0_3 <- read.table(paste0(results_loc_beta10_dep_0_3,"/rr.csv"), header = T)
+rr_results_beta50_dep_0_3 <- read.table(paste0(results_loc_beta50_dep_0_3,"/rr.csv"), header = T)
+rr_results_beta100_dep_0_3 <- read.table(paste0(results_loc_beta100_dep_0_3,"/rr.csv"), header = T)
+
+# dependent, cor = -0.3
+rr_results_beta1_dep_neg0_3 <- read.table(paste0(results_loc_beta1_dep_neg0_3,"/rr.csv"), header = T)
+rr_results_beta10_dep_neg0_3 <- read.table(paste0(results_loc_beta10_dep_neg0_3,"/rr.csv"), header = T)
+rr_results_beta50_dep_neg0_3 <- read.table(paste0(results_loc_beta50_dep_neg0_3,"/rr.csv"), header = T)
+rr_results_beta100_dep_neg0_3 <- read.table(paste0(results_loc_beta100_dep_neg0_3,"/rr.csv"), header = T)
+
+# dependent, cor = 0.5
+rr_results_beta1_dep_0_5 <- read.table(paste0(results_loc_beta1_dep_0_5,"/rr.csv"), header = T)
+rr_results_beta10_dep_0_5 <- read.table(paste0(results_loc_beta10_dep_0_5,"/rr.csv"), header = T)
+rr_results_beta50_dep_0_5 <- read.table(paste0(results_loc_beta50_dep_0_5,"/rr.csv"), header = T)
+rr_results_beta100_dep_0_5 <- read.table(paste0(results_loc_beta100_dep_0_5,"/rr.csv"), header = T)
+
+# dependent, cor = -0.5
+rr_results_beta1_dep_neg0_5 <- read.table(paste0(results_loc_beta1_dep_neg0_5,"/rr.csv"), header = T)
+rr_results_beta10_dep_neg0_5 <- read.table(paste0(results_loc_beta10_dep_neg0_5,"/rr.csv"), header = T)
+rr_results_beta50_dep_neg0_5 <- read.table(paste0(results_loc_beta50_dep_neg0_5,"/rr.csv"), header = T)
+rr_results_beta100_dep_neg0_5 <- read.table(paste0(results_loc_beta100_dep_neg0_5,"/rr.csv"), header = T)
+
+# dependent, cor = 0.7
+rr_results_beta1_dep_0_7 <- read.table(paste0(results_loc_beta1_dep_0_7,"/rr.csv"), header = T)
+rr_results_beta10_dep_0_7 <- read.table(paste0(results_loc_beta10_dep_0_7,"/rr.csv"), header = T)
+rr_results_beta50_dep_0_7 <- read.table(paste0(results_loc_beta50_dep_0_7,"/rr.csv"), header = T)
+rr_results_beta100_dep_0_7 <- read.table(paste0(results_loc_beta100_dep_0_7,"/rr.csv"), header = T)
+
+# dependent, cor = -0.7
+rr_results_beta1_dep_neg0_7 <- read.table(paste0(results_loc_beta1_dep_neg0_7,"/rr.csv"), header = T)
+rr_results_beta10_dep_neg0_7 <- read.table(paste0(results_loc_beta10_dep_neg0_7,"/rr.csv"), header = T)
+rr_results_beta50_dep_neg0_7 <- read.table(paste0(results_loc_beta50_dep_neg0_7,"/rr.csv"), header = T)
+rr_results_beta100_dep_neg0_7 <- read.table(paste0(results_loc_beta100_dep_neg0_7,"/rr.csv"), header = T)
+```
+
+```{r read_ror_values}
+#### read ror values for each beta
+ror_results_beta1 <- read.table(paste0(results_loc_beta1,"/ror.csv"), header = T)
+ror_results_beta10 <- read.table(paste0(results_loc_beta10,"/ror.csv"), header = T)
+ror_results_beta50 <- read.table(paste0(results_loc_beta50,"/ror.csv"), header = T)
+ror_results_beta100 <- read.table(paste0(results_loc_beta100,"/ror.csv"), header = T)
+
+# dependent, cor = 0.3
+ror_results_beta1_dep_0_3 <- read.table(paste0(results_loc_beta1_dep_0_3,"/ror.csv"), header = T)
+ror_results_beta10_dep_0_3 <- read.table(paste0(results_loc_beta10_dep_0_3,"/ror.csv"), header = T)
+ror_results_beta50_dep_0_3 <- read.table(paste0(results_loc_beta50_dep_0_3,"/ror.csv"), header = T)
+ror_results_beta100_dep_0_3 <- read.table(paste0(results_loc_beta100_dep_0_3,"/ror.csv"), header = T)
+
+# dependent, cor = -0.3
+ror_results_beta1_dep_neg0_3 <- read.table(paste0(results_loc_beta1_dep_neg0_3,"/ror.csv"), header = T)
+ror_results_beta10_dep_neg0_3 <- read.table(paste0(results_loc_beta10_dep_neg0_3,"/ror.csv"), header = T)
+ror_results_beta50_dep_neg0_3 <- read.table(paste0(results_loc_beta50_dep_neg0_3,"/ror.csv"), header = T)
+ror_results_beta100_dep_neg0_3 <- read.table(paste0(results_loc_beta100_dep_neg0_3,"/ror.csv"), header = T)
+
+# dependent, cor = 0.5
+ror_results_beta1_dep_0_5 <- read.table(paste0(results_loc_beta1_dep_0_5,"/ror.csv"), header = T)
+ror_results_beta10_dep_0_5 <- read.table(paste0(results_loc_beta10_dep_0_5,"/ror.csv"), header = T)
+ror_results_beta50_dep_0_5 <- read.table(paste0(results_loc_beta50_dep_0_5,"/ror.csv"), header = T)
+ror_results_beta100_dep_0_5 <- read.table(paste0(results_loc_beta100_dep_0_5,"/ror.csv"), header = T)
+
+# dependent, cor = -0.5
+ror_results_beta1_dep_neg0_5 <- read.table(paste0(results_loc_beta1_dep_neg0_5,"/ror.csv"), header = T)
+ror_results_beta10_dep_neg0_5 <- read.table(paste0(results_loc_beta10_dep_neg0_5,"/ror.csv"), header = T)
+ror_results_beta50_dep_neg0_5 <- read.table(paste0(results_loc_beta50_dep_neg0_5,"/ror.csv"), header = T)
+ror_results_beta100_dep_neg0_5 <- read.table(paste0(results_loc_beta100_dep_neg0_5,"/ror.csv"), header = T)
+
+# dependent, cor = 0.7
+ror_results_beta1_dep_0_7 <- read.table(paste0(results_loc_beta1_dep_0_7,"/ror.csv"), header = T)
+ror_results_beta10_dep_0_7 <- read.table(paste0(results_loc_beta10_dep_0_7,"/ror.csv"), header = T)
+ror_results_beta50_dep_0_7 <- read.table(paste0(results_loc_beta50_dep_0_7,"/ror.csv"), header = T)
+ror_results_beta100_dep_0_7 <- read.table(paste0(results_loc_beta100_dep_0_7,"/ror.csv"), header = T)
+
+# dependent, cor = -0.7
+ror_results_beta1_dep_neg0_7 <- read.table(paste0(results_loc_beta1_dep_neg0_7,"/ror.csv"), header = T)
+ror_results_beta10_dep_neg0_7 <- read.table(paste0(results_loc_beta10_dep_neg0_7,"/ror.csv"), header = T)
+ror_results_beta50_dep_neg0_7 <- read.table(paste0(results_loc_beta50_dep_neg0_7,"/ror.csv"), header = T)
+ror_results_beta100_dep_neg0_7 <- read.table(paste0(results_loc_beta100_dep_neg0_7,"/ror.csv"), header = T)
+```
+
+```{r define_thresholds}
+betas <- as.factor(rep(c(rep(1,4), rep(10,4), rep(50,4), rep(100,4)), 7))
+corr <- as.factor(c(rep(0, 16), rep(0.3, 16), rep(-0.3, 16), rep(0.5, 16), rep(-0.5, 16), rep(0.7, 16), rep(-0.7, 16)))
+conf_thresh <- as.factor(rep(c(0.4,0.5,0.6,0.7), 28))
+prr_thresh <- as.factor(rep(c(1,1.2,1.5,2), 28))
+rr_thresh <- as.factor(rep(c(1,1.2,1.5,2), 28))
+ror_thresh <- as.factor(rep(c(1,1.2,1.5,2), 28))
+```
+
+```{r sensitivity_plots}
+#sensitivity plots
+#confidence thresholds
+mean_sens_conf <- c(as.numeric(conf_results_beta1[1,]), as.numeric(conf_results_beta10[1,]), as.numeric(conf_results_beta50[1,]), as.numeric(conf_results_beta100[1,]), as.numeric(conf_results_beta1_dep_0_3[1,]), as.numeric(conf_results_beta10_dep_0_3[1,]), as.numeric(conf_results_beta50_dep_0_3[1,]), as.numeric(conf_results_beta100_dep_0_3[1,]), as.numeric(conf_results_beta1_dep_neg0_3[1,]), as.numeric(conf_results_beta10_dep_neg0_3[1,]), as.numeric(conf_results_beta50_dep_neg0_3[1,]), as.numeric(conf_results_beta100_dep_neg0_3[1,]), as.numeric(conf_results_beta1_dep_0_5[1,]), as.numeric(conf_results_beta10_dep_0_5[1,]),  as.numeric(conf_results_beta50_dep_0_5[1,]), as.numeric(conf_results_beta100_dep_0_5[1,]), as.numeric(conf_results_beta1_dep_neg0_5[1,]), as.numeric(conf_results_beta10_dep_neg0_5[1,]),  as.numeric(conf_results_beta50_dep_neg0_5[1,]), as.numeric(conf_results_beta100_dep_neg0_5[1,]), as.numeric(conf_results_beta1_dep_0_7[1,]), as.numeric(conf_results_beta10_dep_0_7[1,]), as.numeric(conf_results_beta50_dep_0_7[1,]), as.numeric(conf_results_beta100_dep_0_7[1,]), as.numeric(conf_results_beta1_dep_neg0_7[1,]), as.numeric(conf_results_beta10_dep_neg0_7[1,]), as.numeric(conf_results_beta50_dep_neg0_7[1,]), as.numeric(conf_results_beta100_dep_neg0_7[1,]))
+
+#prr thresholds
+mean_sens_prr <- c(as.numeric(prr_results_beta1[1,]), as.numeric(prr_results_beta10[1,]), as.numeric(prr_results_beta50[1,]), as.numeric(prr_results_beta100[1,]), as.numeric(prr_results_beta1_dep_0_3[1,]), as.numeric(prr_results_beta10_dep_0_3[1,]), as.numeric(prr_results_beta50_dep_0_3[1,]), as.numeric(prr_results_beta100_dep_0_3[1,]), as.numeric(prr_results_beta1_dep_neg0_3[1,]), as.numeric(prr_results_beta10_dep_neg0_3[1,]), as.numeric(prr_results_beta50_dep_neg0_3[1,]), as.numeric(prr_results_beta100_dep_neg0_3[1,]), as.numeric(prr_results_beta1_dep_0_5[1,]), as.numeric(prr_results_beta10_dep_0_5[1,]), as.numeric(prr_results_beta50_dep_0_5[1,]), as.numeric(prr_results_beta100_dep_0_5[1,]), as.numeric(prr_results_beta1_dep_neg0_5[1,]), as.numeric(prr_results_beta10_dep_neg0_5[1,]), as.numeric(prr_results_beta50_dep_neg0_5[1,]), as.numeric(prr_results_beta100_dep_neg0_5[1,]), as.numeric(prr_results_beta1_dep_0_7[1,]), as.numeric(prr_results_beta10_dep_0_7[1,]), as.numeric(prr_results_beta50_dep_0_7[1,]), as.numeric(prr_results_beta100_dep_0_7[1,]), as.numeric(prr_results_beta1_dep_neg0_7[1,]), as.numeric(prr_results_beta10_dep_neg0_7[1,]), as.numeric(prr_results_beta50_dep_neg0_7[1,]), as.numeric(prr_results_beta100_dep_neg0_7[1,]))
+
+#rr thresholds
+mean_sens_rr <- c(as.numeric(rr_results_beta1[1,]), as.numeric(rr_results_beta10[1,]), as.numeric(rr_results_beta50[1,]), as.numeric(rr_results_beta100[1,]), as.numeric(rr_results_beta1_dep_0_3[1,]), as.numeric(rr_results_beta10_dep_0_3[1,]), as.numeric(rr_results_beta50_dep_0_3[1,]), as.numeric(rr_results_beta100_dep_0_3[1,]), as.numeric(rr_results_beta1_dep_neg0_3[1,]), as.numeric(rr_results_beta10_dep_neg0_3[1,]), as.numeric(rr_results_beta50_dep_neg0_3[1,]), as.numeric(rr_results_beta100_dep_neg0_3[1,]), as.numeric(rr_results_beta1_dep_0_5[1,]), as.numeric(rr_results_beta10_dep_0_5[1,]), as.numeric(rr_results_beta50_dep_0_5[1,]), as.numeric(rr_results_beta100_dep_0_5[1,]), as.numeric(rr_results_beta1_dep_neg0_5[1,]), as.numeric(rr_results_beta10_dep_neg0_5[1,]), as.numeric(rr_results_beta50_dep_neg0_5[1,]), as.numeric(rr_results_beta100_dep_neg0_5[1,]), as.numeric(rr_results_beta1_dep_0_7[1,]), as.numeric(rr_results_beta10_dep_0_7[1,]), as.numeric(rr_results_beta50_dep_0_7[1,]), as.numeric(rr_results_beta100_dep_0_7[1,]), as.numeric(rr_results_beta1_dep_neg0_7[1,]), as.numeric(rr_results_beta10_dep_neg0_7[1,]), as.numeric(rr_results_beta50_dep_neg0_7[1,]), as.numeric(rr_results_beta100_dep_neg0_7[1,]))
+
+#ror thresholds
+mean_sens_ror <- c(as.numeric(ror_results_beta1[1,]), as.numeric(ror_results_beta10[1,]), as.numeric(ror_results_beta50[1,]), as.numeric(ror_results_beta100[1,]), as.numeric(ror_results_beta1_dep_0_3[1,]), as.numeric(ror_results_beta10_dep_0_3[1,]), as.numeric(ror_results_beta50_dep_0_3[1,]), as.numeric(ror_results_beta100_dep_0_3[1,]), as.numeric(ror_results_beta1_dep_neg0_3[1,]), as.numeric(ror_results_beta10_dep_neg0_3[1,]), as.numeric(ror_results_beta50_dep_neg0_3[1,]), as.numeric(ror_results_beta100_dep_neg0_3[1,]), as.numeric(ror_results_beta1_dep_0_5[1,]), as.numeric(ror_results_beta10_dep_0_5[1,]), as.numeric(ror_results_beta50_dep_0_5[1,]), as.numeric(ror_results_beta100_dep_0_5[1,]), as.numeric(ror_results_beta1_dep_neg0_5[1,]), as.numeric(ror_results_beta10_dep_neg0_5[1,]), as.numeric(ror_results_beta50_dep_neg0_5[1,]), as.numeric(ror_results_beta100_dep_neg0_5[1,]), as.numeric(ror_results_beta1_dep_0_7[1,]), as.numeric(ror_results_beta10_dep_0_7[1,]), as.numeric(ror_results_beta50_dep_0_7[1,]), as.numeric(ror_results_beta100_dep_0_7[1,]), as.numeric(ror_results_beta1_dep_neg0_7[1,]), as.numeric(ror_results_beta10_dep_neg0_7[1,]), as.numeric(ror_results_beta50_dep_neg0_7[1,]), as.numeric(ror_results_beta100_dep_neg0_7[1,]))
+
+g1 <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_sens_conf, linetype=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=conf_thresh, y=mean_sens_conf, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) + 
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean Sensitivity", x="Confidence thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g2 <- ggplot() + 
+  geom_line(aes(x=prr_thresh, y=mean_sens_prr, linetype=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=prr_thresh, y=mean_sens_prr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean Sensitivity", x="PRR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g3 <- ggplot() + 
+  geom_line(aes(x=rr_thresh, y=mean_sens_rr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=rr_thresh, y=mean_sens_rr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean Sensitivity", x="RR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g4 <- ggplot() + 
+  geom_line(aes(x=ror_thresh, y=mean_sens_ror, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=ror_thresh, y=mean_sens_ror, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean Sensitivity", x="ROR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+combined_plot <- grid.arrange(g1, g2, g3, g4, nrow=2, ncol=2)
+
+g1_legend <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_sens_conf, linetype=betas, color=corr, group=interaction(betas, corr))) + 
+  geom_point(aes(x=conf_thresh, y=mean_sens_conf, shape=betas, color=corr, group=interaction(betas, corr))) + 
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18), name=greeks("beta")) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f"), name=greeks("rho")) +
+  labs(y="Mean Sensitivity", x="Confidence thresholds") + 
+  #scale_color_discrete(name=greeks("rho")) +
+  #scale_shape_discrete(name=greeks("beta")) +
+  scale_linetype_discrete(name=greeks("beta")) +
+  theme(legend.position = "bottom", axis.text=element_text(size=10),
+        axis.title=element_text(size=8), legend.title = element_text(size=10, face="bold"), 
+        legend.text = element_text(size=8))
+
+#function to extract legend from plot
+get_only_legend <- function(plot) {
+  plot_table <- ggplot_gtable(ggplot_build(plot))
+  legend_plot <- which(sapply(plot_table$grobs, function(x) x$name) == "guide-box")
+  legend <- plot_table$grobs[[legend_plot]]
+  return(legend)
+}
+
+#extract legend from g1 using above function
+legend <- get_only_legend(g1_legend)
+
+#final combined plot with common legend
+combined_sens_plot <- grid.arrange(combined_plot, legend, nrow=2, heights=c(8.5,2), top = "Sensitivity plots for p = 0.5, 5 drugs and 10 AEs setting")
+sens_plot_file <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/plots/setting_5d_10ae/p_0_5/sens.png"
+#print(combined_sens_plot)
+ggsave(filename = sens_plot_file, plot = combined_sens_plot)
+```
+
+```{r specificity_plots}
+#specificity plots
+#confidence thresholds
+mean_spec_conf <- c(as.numeric(conf_results_beta1[2,]), as.numeric(conf_results_beta10[2,]), as.numeric(conf_results_beta50[2,]), as.numeric(conf_results_beta100[2,]), as.numeric(conf_results_beta1_dep_0_3[2,]), as.numeric(conf_results_beta10_dep_0_3[2,]), as.numeric(conf_results_beta50_dep_0_3[2,]), as.numeric(conf_results_beta100_dep_0_3[2,]), as.numeric(conf_results_beta1_dep_neg0_3[2,]), as.numeric(conf_results_beta10_dep_neg0_3[2,]), as.numeric(conf_results_beta50_dep_neg0_3[2,]), as.numeric(conf_results_beta100_dep_neg0_3[2,]), as.numeric(conf_results_beta1_dep_0_5[2,]), as.numeric(conf_results_beta10_dep_0_5[2,]),  as.numeric(conf_results_beta50_dep_0_5[2,]), as.numeric(conf_results_beta100_dep_0_5[2,]), as.numeric(conf_results_beta1_dep_neg0_5[2,]), as.numeric(conf_results_beta10_dep_neg0_5[2,]),  as.numeric(conf_results_beta50_dep_neg0_5[2,]), as.numeric(conf_results_beta100_dep_neg0_5[2,]), as.numeric(conf_results_beta1_dep_0_7[2,]), as.numeric(conf_results_beta10_dep_0_7[2,]), as.numeric(conf_results_beta50_dep_0_7[2,]), as.numeric(conf_results_beta100_dep_0_7[2,]), as.numeric(conf_results_beta1_dep_neg0_7[2,]), as.numeric(conf_results_beta10_dep_neg0_7[2,]), as.numeric(conf_results_beta50_dep_neg0_7[2,]), as.numeric(conf_results_beta100_dep_neg0_7[2,]))
+
+#prr thresholds
+mean_spec_prr <- c(as.numeric(prr_results_beta1[2,]), as.numeric(prr_results_beta10[2,]), as.numeric(prr_results_beta50[2,]), as.numeric(prr_results_beta100[2,]), as.numeric(prr_results_beta1_dep_0_3[2,]), as.numeric(prr_results_beta10_dep_0_3[2,]), as.numeric(prr_results_beta50_dep_0_3[2,]), as.numeric(prr_results_beta100_dep_0_3[2,]), as.numeric(prr_results_beta1_dep_neg0_3[2,]), as.numeric(prr_results_beta10_dep_neg0_3[2,]), as.numeric(prr_results_beta50_dep_neg0_3[2,]), as.numeric(prr_results_beta100_dep_neg0_3[2,]), as.numeric(prr_results_beta1_dep_0_5[2,]), as.numeric(prr_results_beta10_dep_0_5[2,]), as.numeric(prr_results_beta50_dep_0_5[2,]), as.numeric(prr_results_beta100_dep_0_5[2,]), as.numeric(prr_results_beta1_dep_neg0_5[2,]), as.numeric(prr_results_beta10_dep_neg0_5[2,]), as.numeric(prr_results_beta50_dep_neg0_5[2,]), as.numeric(prr_results_beta100_dep_neg0_5[2,]), as.numeric(prr_results_beta1_dep_0_7[2,]), as.numeric(prr_results_beta10_dep_0_7[2,]), as.numeric(prr_results_beta50_dep_0_7[2,]), as.numeric(prr_results_beta100_dep_0_7[2,]), as.numeric(prr_results_beta1_dep_neg0_7[2,]), as.numeric(prr_results_beta10_dep_neg0_7[2,]), as.numeric(prr_results_beta50_dep_neg0_7[2,]), as.numeric(prr_results_beta100_dep_neg0_7[2,]))
+
+#rr thresholds
+mean_spec_rr <- c(as.numeric(rr_results_beta1[2,]), as.numeric(rr_results_beta10[2,]), as.numeric(rr_results_beta50[2,]), as.numeric(rr_results_beta100[2,]), as.numeric(rr_results_beta1_dep_0_3[2,]), as.numeric(rr_results_beta10_dep_0_3[2,]), as.numeric(rr_results_beta50_dep_0_3[2,]), as.numeric(rr_results_beta100_dep_0_3[2,]), as.numeric(rr_results_beta1_dep_neg0_3[2,]), as.numeric(rr_results_beta10_dep_neg0_3[2,]), as.numeric(rr_results_beta50_dep_neg0_3[2,]), as.numeric(rr_results_beta100_dep_neg0_3[2,]), as.numeric(rr_results_beta1_dep_0_5[2,]), as.numeric(rr_results_beta10_dep_0_5[2,]), as.numeric(rr_results_beta50_dep_0_5[2,]), as.numeric(rr_results_beta100_dep_0_5[2,]), as.numeric(rr_results_beta1_dep_neg0_5[2,]), as.numeric(rr_results_beta10_dep_neg0_5[2,]), as.numeric(rr_results_beta50_dep_neg0_5[2,]), as.numeric(rr_results_beta100_dep_neg0_5[2,]), as.numeric(rr_results_beta1_dep_0_7[2,]), as.numeric(rr_results_beta10_dep_0_7[2,]), as.numeric(rr_results_beta50_dep_0_7[2,]), as.numeric(rr_results_beta100_dep_0_7[2,]), as.numeric(rr_results_beta1_dep_neg0_7[2,]), as.numeric(rr_results_beta10_dep_neg0_7[2,]), as.numeric(rr_results_beta50_dep_neg0_7[2,]), as.numeric(rr_results_beta100_dep_neg0_7[2,]))
+
+#ror thresholds
+mean_spec_ror <- c(as.numeric(ror_results_beta1[2,]), as.numeric(ror_results_beta10[2,]), as.numeric(ror_results_beta50[2,]), as.numeric(ror_results_beta100[2,]), as.numeric(ror_results_beta1_dep_0_3[2,]), as.numeric(ror_results_beta10_dep_0_3[2,]), as.numeric(ror_results_beta50_dep_0_3[2,]), as.numeric(ror_results_beta100_dep_0_3[2,]), as.numeric(ror_results_beta1_dep_neg0_3[2,]), as.numeric(ror_results_beta10_dep_neg0_3[2,]), as.numeric(ror_results_beta50_dep_neg0_3[2,]), as.numeric(ror_results_beta100_dep_neg0_3[2,]), as.numeric(ror_results_beta1_dep_0_5[2,]), as.numeric(ror_results_beta10_dep_0_5[2,]), as.numeric(ror_results_beta50_dep_0_5[2,]), as.numeric(ror_results_beta100_dep_0_5[2,]), as.numeric(ror_results_beta1_dep_neg0_5[2,]), as.numeric(ror_results_beta10_dep_neg0_5[2,]), as.numeric(ror_results_beta50_dep_neg0_5[2,]), as.numeric(ror_results_beta100_dep_neg0_5[2,]), as.numeric(ror_results_beta1_dep_0_7[2,]), as.numeric(ror_results_beta10_dep_0_7[2,]), as.numeric(ror_results_beta50_dep_0_7[2,]), as.numeric(ror_results_beta100_dep_0_7[2,]), as.numeric(ror_results_beta1_dep_neg0_7[2,]), as.numeric(ror_results_beta10_dep_neg0_7[2,]), as.numeric(ror_results_beta50_dep_neg0_7[2,]), as.numeric(ror_results_beta100_dep_neg0_7[2,]))
+
+g1 <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_spec_conf, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=conf_thresh, y=mean_spec_conf, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0.5,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean Specificity", x="Confidence thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g2 <- ggplot() + 
+  geom_line(aes(x=prr_thresh, y=mean_spec_prr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=prr_thresh, y=mean_spec_prr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0.5,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean Specificity", x="PRR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g3 <- ggplot() + 
+  geom_line(aes(x=rr_thresh, y=mean_spec_rr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=rr_thresh, y=mean_spec_rr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0.5,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean Specificity", x="RR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g4 <- ggplot() + 
+  geom_line(aes(x=ror_thresh, y=mean_spec_ror, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=ror_thresh, y=mean_spec_ror, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0.5,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean Specificity", x="ROR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+combined_plot <- grid.arrange(g1, g2, g3, g4, nrow=2, ncol=2)
+
+g1_legend <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_spec_conf, color=corr, linetype=betas, group=interaction(betas, corr))) + 
+  geom_point(aes(x=conf_thresh, y=mean_spec_conf, shape=betas, color=corr, group=interaction(betas, corr))) + 
+  ylim(0.5,1) +
+  labs(y="Mean Specificity", x="Confidence thresholds") + 
+  #scale_color_discrete(name=greeks("rho")) +
+  #scale_shape_discrete(name=greeks("rho")) +
+  scale_shape_manual(values = c(15,16,17,18), name=greeks("beta")) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f"), name=greeks("rho")) +
+  scale_linetype_discrete(name=greeks("beta")) +
+  theme(legend.position = "bottom", axis.text=element_text(size=8),
+        axis.title=element_text(size=8), legend.title = element_text(size=10, face="bold"), 
+        legend.text = element_text(size=8))
+
+#function to extract legend from plot
+get_only_legend <- function(plot) {
+  plot_table <- ggplot_gtable(ggplot_build(plot))
+  legend_plot <- which(sapply(plot_table$grobs, function(x) x$name) == "guide-box")
+  legend <- plot_table$grobs[[legend_plot]]
+  return(legend)
+}
+
+#extract legend from g1 using above function
+legend <- get_only_legend(g1_legend)
+
+#final combined plot with common legend
+combined_spec_plot <- grid.arrange(combined_plot, legend, nrow=2, heights=c(8.5,2), top = "Specificity plots for p = 0.5, 5 drugs and 10 AEs setting")
+spec_plot_file <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/plots/setting_5d_10ae/p_0_5/spec.png"
+ggsave(filename = spec_plot_file, plot = combined_spec_plot)
+```
+
+```{r ppv_plots}
+#ppv plots
+#confidence thresholds
+mean_ppv_conf <- c(as.numeric(conf_results_beta1[3,]), as.numeric(conf_results_beta10[3,]), as.numeric(conf_results_beta50[3,]), as.numeric(conf_results_beta100[3,]), as.numeric(conf_results_beta1_dep_0_3[3,]), as.numeric(conf_results_beta10_dep_0_3[3,]), as.numeric(conf_results_beta50_dep_0_3[3,]), as.numeric(conf_results_beta100_dep_0_3[3,]), as.numeric(conf_results_beta1_dep_neg0_3[3,]), as.numeric(conf_results_beta10_dep_neg0_3[3,]), as.numeric(conf_results_beta50_dep_neg0_3[3,]), as.numeric(conf_results_beta100_dep_neg0_3[3,]), as.numeric(conf_results_beta1_dep_0_5[3,]), as.numeric(conf_results_beta10_dep_0_5[3,]),  as.numeric(conf_results_beta50_dep_0_5[3,]), as.numeric(conf_results_beta100_dep_0_5[3,]), as.numeric(conf_results_beta1_dep_neg0_5[3,]), as.numeric(conf_results_beta10_dep_neg0_5[3,]),  as.numeric(conf_results_beta50_dep_neg0_5[3,]), as.numeric(conf_results_beta100_dep_neg0_5[3,]), as.numeric(conf_results_beta1_dep_0_7[3,]), as.numeric(conf_results_beta10_dep_0_7[3,]), as.numeric(conf_results_beta50_dep_0_7[3,]), as.numeric(conf_results_beta100_dep_0_7[3,]), as.numeric(conf_results_beta1_dep_neg0_7[3,]), as.numeric(conf_results_beta10_dep_neg0_7[3,]), as.numeric(conf_results_beta50_dep_neg0_7[3,]), as.numeric(conf_results_beta100_dep_neg0_7[3,]))
+
+#prr thresholds
+mean_ppv_prr <- c(as.numeric(prr_results_beta1[3,]), as.numeric(prr_results_beta10[3,]), as.numeric(prr_results_beta50[3,]), as.numeric(prr_results_beta100[3,]), as.numeric(prr_results_beta1_dep_0_3[3,]), as.numeric(prr_results_beta10_dep_0_3[3,]), as.numeric(prr_results_beta50_dep_0_3[3,]), as.numeric(prr_results_beta100_dep_0_3[3,]), as.numeric(prr_results_beta1_dep_neg0_3[3,]), as.numeric(prr_results_beta10_dep_neg0_3[3,]), as.numeric(prr_results_beta50_dep_neg0_3[3,]), as.numeric(prr_results_beta100_dep_neg0_3[3,]), as.numeric(prr_results_beta1_dep_0_5[3,]), as.numeric(prr_results_beta10_dep_0_5[3,]), as.numeric(prr_results_beta50_dep_0_5[3,]), as.numeric(prr_results_beta100_dep_0_5[3,]), as.numeric(prr_results_beta1_dep_neg0_5[3,]), as.numeric(prr_results_beta10_dep_neg0_5[3,]), as.numeric(prr_results_beta50_dep_neg0_5[3,]), as.numeric(prr_results_beta100_dep_neg0_5[3,]), as.numeric(prr_results_beta1_dep_0_7[3,]), as.numeric(prr_results_beta10_dep_0_7[3,]), as.numeric(prr_results_beta50_dep_0_7[3,]), as.numeric(prr_results_beta100_dep_0_7[3,]), as.numeric(prr_results_beta1_dep_neg0_7[3,]), as.numeric(prr_results_beta10_dep_neg0_7[3,]), as.numeric(prr_results_beta50_dep_neg0_7[3,]), as.numeric(prr_results_beta100_dep_neg0_7[3,]))
+
+#rr thresholds
+mean_ppv_rr <- c(as.numeric(rr_results_beta1[3,]), as.numeric(rr_results_beta10[3,]), as.numeric(rr_results_beta50[3,]), as.numeric(rr_results_beta100[3,]), as.numeric(rr_results_beta1_dep_0_3[3,]), as.numeric(rr_results_beta10_dep_0_3[3,]), as.numeric(rr_results_beta50_dep_0_3[3,]), as.numeric(rr_results_beta100_dep_0_3[3,]), as.numeric(rr_results_beta1_dep_neg0_3[3,]), as.numeric(rr_results_beta10_dep_neg0_3[3,]), as.numeric(rr_results_beta50_dep_neg0_3[3,]), as.numeric(rr_results_beta100_dep_neg0_3[3,]), as.numeric(rr_results_beta1_dep_0_5[3,]), as.numeric(rr_results_beta10_dep_0_5[3,]), as.numeric(rr_results_beta50_dep_0_5[3,]), as.numeric(rr_results_beta100_dep_0_5[3,]), as.numeric(rr_results_beta1_dep_neg0_5[3,]), as.numeric(rr_results_beta10_dep_neg0_5[3,]), as.numeric(rr_results_beta50_dep_neg0_5[3,]), as.numeric(rr_results_beta100_dep_neg0_5[3,]), as.numeric(rr_results_beta1_dep_0_7[3,]), as.numeric(rr_results_beta10_dep_0_7[3,]), as.numeric(rr_results_beta50_dep_0_7[3,]), as.numeric(rr_results_beta100_dep_0_7[3,]), as.numeric(rr_results_beta1_dep_neg0_7[3,]), as.numeric(rr_results_beta10_dep_neg0_7[3,]), as.numeric(rr_results_beta50_dep_neg0_7[3,]), as.numeric(rr_results_beta100_dep_neg0_7[3,]))
+
+#ror thresholds
+mean_ppv_ror <- c(as.numeric(ror_results_beta1[3,]), as.numeric(ror_results_beta10[3,]), as.numeric(ror_results_beta50[3,]), as.numeric(ror_results_beta100[3,]), as.numeric(ror_results_beta1_dep_0_3[3,]), as.numeric(ror_results_beta10_dep_0_3[3,]), as.numeric(ror_results_beta50_dep_0_3[3,]), as.numeric(ror_results_beta100_dep_0_3[3,]), as.numeric(ror_results_beta1_dep_neg0_3[3,]), as.numeric(ror_results_beta10_dep_neg0_3[3,]), as.numeric(ror_results_beta50_dep_neg0_3[3,]), as.numeric(ror_results_beta100_dep_neg0_3[3,]), as.numeric(ror_results_beta1_dep_0_5[3,]), as.numeric(ror_results_beta10_dep_0_5[3,]), as.numeric(ror_results_beta50_dep_0_5[3,]), as.numeric(ror_results_beta100_dep_0_5[3,]), as.numeric(ror_results_beta1_dep_neg0_5[3,]), as.numeric(ror_results_beta10_dep_neg0_5[3,]), as.numeric(ror_results_beta50_dep_neg0_5[3,]), as.numeric(ror_results_beta100_dep_neg0_5[3,]), as.numeric(ror_results_beta1_dep_0_7[3,]), as.numeric(ror_results_beta10_dep_0_7[3,]), as.numeric(ror_results_beta50_dep_0_7[3,]), as.numeric(ror_results_beta100_dep_0_7[3,]), as.numeric(ror_results_beta1_dep_neg0_7[3,]), as.numeric(ror_results_beta10_dep_neg0_7[3,]), as.numeric(ror_results_beta50_dep_neg0_7[3,]), as.numeric(ror_results_beta100_dep_neg0_7[3,]))
+
+g1 <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_ppv_conf, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=conf_thresh, y=mean_ppv_conf, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean PPV", x="Confidence thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g2 <- ggplot() + 
+  geom_line(aes(x=prr_thresh, y=mean_ppv_prr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=prr_thresh, y=mean_ppv_prr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean PPV", x="PRR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g3 <- ggplot() + 
+  geom_line(aes(x=rr_thresh, y=mean_ppv_rr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=rr_thresh, y=mean_ppv_rr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean PPV", x="RR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g4 <- ggplot() + 
+  geom_line(aes(x=ror_thresh, y=mean_ppv_ror, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) +
+  geom_point(aes(x=ror_thresh, y=mean_ppv_ror, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean PPV", x="ROR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+combined_plot <- grid.arrange(g1, g2, g3, g4, nrow=2, ncol=2)
+
+g1_legend <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_ppv_conf, color=corr, linetype=betas, group=interaction(betas, corr))) + 
+  geom_point(aes(x=conf_thresh, y=mean_ppv_conf, shape=betas, color=corr, group=interaction(betas, corr))) + 
+  ylim(0,1) +
+  labs(y="Mean PPV", x="Confidence thresholds") + 
+  #scale_color_discrete(name=greeks("rho")) +
+  #scale_shape_discrete(name=greeks("rho")) +
+  scale_shape_manual(values = c(15,16,17,18), name=greeks("beta")) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f"), name=greeks("rho")) +
+  scale_linetype_discrete(name=greeks("beta")) +
+  theme(legend.position = "bottom", axis.text=element_text(size=8),
+        axis.title=element_text(size=8), legend.title = element_text(size=10, face="bold"), 
+        legend.text = element_text(size=8))
+
+#function to extract legend from plot
+get_only_legend <- function(plot) {
+  plot_table <- ggplot_gtable(ggplot_build(plot))
+  legend_plot <- which(sapply(plot_table$grobs, function(x) x$name) == "guide-box")
+  legend <- plot_table$grobs[[legend_plot]]
+  return(legend)
+}
+
+#extract legend from g1 using above function
+legend <- get_only_legend(g1_legend)
+
+#final combined plot with common legend
+combined_ppv_plot <- grid.arrange(combined_plot, legend, nrow=2, heights=c(8.5,2), top = "PPV plots for p = 0.5, 5 drugs and 10 AEs setting")
+ppv_plot_file <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/plots/setting_5d_10ae/p_0_5/ppv.png"
+ggsave(filename = ppv_plot_file, plot = combined_ppv_plot)
+```
+
+```{r npv_plots}
+#npv plots
+#confidence thresholds
+mean_npv_conf <- c(as.numeric(conf_results_beta1[4,]), as.numeric(conf_results_beta10[4,]), as.numeric(conf_results_beta50[4,]), as.numeric(conf_results_beta100[4,]), as.numeric(conf_results_beta1_dep_0_3[4,]), as.numeric(conf_results_beta10_dep_0_3[4,]), as.numeric(conf_results_beta50_dep_0_3[4,]), as.numeric(conf_results_beta100_dep_0_3[4,]), as.numeric(conf_results_beta1_dep_neg0_3[4,]), as.numeric(conf_results_beta10_dep_neg0_3[4,]), as.numeric(conf_results_beta50_dep_neg0_3[4,]), as.numeric(conf_results_beta100_dep_neg0_3[4,]), as.numeric(conf_results_beta1_dep_0_5[4,]), as.numeric(conf_results_beta10_dep_0_5[4,]),  as.numeric(conf_results_beta50_dep_0_5[4,]), as.numeric(conf_results_beta100_dep_0_5[4,]), as.numeric(conf_results_beta1_dep_neg0_5[4,]), as.numeric(conf_results_beta10_dep_neg0_5[4,]),  as.numeric(conf_results_beta50_dep_neg0_5[4,]), as.numeric(conf_results_beta100_dep_neg0_5[4,]), as.numeric(conf_results_beta1_dep_0_7[4,]), as.numeric(conf_results_beta10_dep_0_7[4,]), as.numeric(conf_results_beta50_dep_0_7[4,]), as.numeric(conf_results_beta100_dep_0_7[4,]), as.numeric(conf_results_beta1_dep_neg0_7[4,]), as.numeric(conf_results_beta10_dep_neg0_7[4,]), as.numeric(conf_results_beta50_dep_neg0_7[4,]), as.numeric(conf_results_beta100_dep_neg0_7[4,]))
+
+#prr thresholds
+mean_npv_prr <- c(as.numeric(prr_results_beta1[4,]), as.numeric(prr_results_beta10[4,]), as.numeric(prr_results_beta50[4,]), as.numeric(prr_results_beta100[4,]), as.numeric(prr_results_beta1_dep_0_3[4,]), as.numeric(prr_results_beta10_dep_0_3[4,]), as.numeric(prr_results_beta50_dep_0_3[4,]), as.numeric(prr_results_beta100_dep_0_3[4,]), as.numeric(prr_results_beta1_dep_neg0_3[4,]), as.numeric(prr_results_beta10_dep_neg0_3[4,]), as.numeric(prr_results_beta50_dep_neg0_3[4,]), as.numeric(prr_results_beta100_dep_neg0_3[4,]), as.numeric(prr_results_beta1_dep_0_5[4,]), as.numeric(prr_results_beta10_dep_0_5[4,]), as.numeric(prr_results_beta50_dep_0_5[4,]), as.numeric(prr_results_beta100_dep_0_5[4,]), as.numeric(prr_results_beta1_dep_neg0_5[4,]), as.numeric(prr_results_beta10_dep_neg0_5[4,]), as.numeric(prr_results_beta50_dep_neg0_5[4,]), as.numeric(prr_results_beta100_dep_neg0_5[4,]), as.numeric(prr_results_beta1_dep_0_7[4,]), as.numeric(prr_results_beta10_dep_0_7[4,]), as.numeric(prr_results_beta50_dep_0_7[4,]), as.numeric(prr_results_beta100_dep_0_7[4,]), as.numeric(prr_results_beta1_dep_neg0_7[4,]), as.numeric(prr_results_beta10_dep_neg0_7[4,]), as.numeric(prr_results_beta50_dep_neg0_7[4,]), as.numeric(prr_results_beta100_dep_neg0_7[4,]))
+
+#rr thresholds
+mean_npv_rr <- c(as.numeric(rr_results_beta1[4,]), as.numeric(rr_results_beta10[4,]), as.numeric(rr_results_beta50[4,]), as.numeric(rr_results_beta100[4,]), as.numeric(rr_results_beta1_dep_0_3[4,]), as.numeric(rr_results_beta10_dep_0_3[4,]), as.numeric(rr_results_beta50_dep_0_3[4,]), as.numeric(rr_results_beta100_dep_0_3[4,]), as.numeric(rr_results_beta1_dep_neg0_3[4,]), as.numeric(rr_results_beta10_dep_neg0_3[4,]), as.numeric(rr_results_beta50_dep_neg0_3[4,]), as.numeric(rr_results_beta100_dep_neg0_3[4,]), as.numeric(rr_results_beta1_dep_0_5[4,]), as.numeric(rr_results_beta10_dep_0_5[4,]), as.numeric(rr_results_beta50_dep_0_5[4,]), as.numeric(rr_results_beta100_dep_0_5[4,]), as.numeric(rr_results_beta1_dep_neg0_5[4,]), as.numeric(rr_results_beta10_dep_neg0_5[4,]), as.numeric(rr_results_beta50_dep_neg0_5[4,]), as.numeric(rr_results_beta100_dep_neg0_5[4,]), as.numeric(rr_results_beta1_dep_0_7[4,]), as.numeric(rr_results_beta10_dep_0_7[4,]), as.numeric(rr_results_beta50_dep_0_7[4,]), as.numeric(rr_results_beta100_dep_0_7[4,]), as.numeric(rr_results_beta1_dep_neg0_7[4,]), as.numeric(rr_results_beta10_dep_neg0_7[4,]), as.numeric(rr_results_beta50_dep_neg0_7[4,]), as.numeric(rr_results_beta100_dep_neg0_7[4,]))
+
+#ror thresholds
+mean_npv_ror <- c(as.numeric(ror_results_beta1[4,]), as.numeric(ror_results_beta10[4,]), as.numeric(ror_results_beta50[4,]), as.numeric(ror_results_beta100[4,]), as.numeric(ror_results_beta1_dep_0_3[4,]), as.numeric(ror_results_beta10_dep_0_3[4,]), as.numeric(ror_results_beta50_dep_0_3[4,]), as.numeric(ror_results_beta100_dep_0_3[4,]), as.numeric(ror_results_beta1_dep_neg0_3[4,]), as.numeric(ror_results_beta10_dep_neg0_3[4,]), as.numeric(ror_results_beta50_dep_neg0_3[4,]), as.numeric(ror_results_beta100_dep_neg0_3[4,]), as.numeric(ror_results_beta1_dep_0_5[4,]), as.numeric(ror_results_beta10_dep_0_5[4,]), as.numeric(ror_results_beta50_dep_0_5[4,]), as.numeric(ror_results_beta100_dep_0_5[4,]), as.numeric(ror_results_beta1_dep_neg0_5[4,]), as.numeric(ror_results_beta10_dep_neg0_5[4,]), as.numeric(ror_results_beta50_dep_neg0_5[4,]), as.numeric(ror_results_beta100_dep_neg0_5[4,]), as.numeric(ror_results_beta1_dep_0_7[4,]), as.numeric(ror_results_beta10_dep_0_7[4,]), as.numeric(ror_results_beta50_dep_0_7[4,]), as.numeric(ror_results_beta100_dep_0_7[4,]), as.numeric(ror_results_beta1_dep_neg0_7[4,]), as.numeric(ror_results_beta10_dep_neg0_7[4,]), as.numeric(ror_results_beta50_dep_neg0_7[4,]), as.numeric(ror_results_beta100_dep_neg0_7[4,]))
+
+g1 <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_npv_conf, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=conf_thresh, y=mean_npv_conf, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0.85,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean NPV", x="Confidence thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g2 <- ggplot() + 
+  geom_line(aes(x=prr_thresh, y=mean_npv_prr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) +
+  geom_point(aes(x=prr_thresh, y=mean_npv_prr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0.85,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean NPV", x="PRR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g3 <- ggplot() + 
+  geom_line(aes(x=rr_thresh, y=mean_npv_rr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=rr_thresh, y=mean_npv_rr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0.85,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean NPV", x="RR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g4 <- ggplot() + 
+  geom_line(aes(x=ror_thresh, y=mean_npv_ror, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=ror_thresh, y=mean_npv_ror, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0.85,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean NPV", x="ROR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+combined_plot <- grid.arrange(g1, g2, g3, g4, nrow=2, ncol=2)
+
+g1_legend <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_npv_conf, color=corr, linetype=betas, group=interaction(betas, corr))) + 
+  geom_point(aes(x=conf_thresh, y=mean_npv_conf, shape=betas, color=corr, group=interaction(betas, corr))) + 
+  ylim(0.85,1) +
+  labs(y="Mean NPV", x="Confidence thresholds") + 
+  #scale_color_discrete(name=greeks("rho")) +
+  #scale_shape_discrete(name=greeks("rho")) +
+  scale_shape_manual(values = c(15,16,17,18), name=greeks("beta")) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f"), name=greeks("rho")) +
+  scale_linetype_discrete(name=greeks("beta")) +
+  theme(legend.position = "bottom", axis.text=element_text(size=8),
+        axis.title=element_text(size=8), legend.title = element_text(size=10, face="bold"), 
+        legend.text = element_text(size=8))
+
+#function to extract legend from plot
+get_only_legend <- function(plot) {
+  plot_table <- ggplot_gtable(ggplot_build(plot))
+  legend_plot <- which(sapply(plot_table$grobs, function(x) x$name) == "guide-box")
+  legend <- plot_table$grobs[[legend_plot]]
+  return(legend)
+}
+
+#extract legend from g1 using above function
+legend <- get_only_legend(g1_legend)
+
+#final combined plot with common legend
+combined_npv_plot <- grid.arrange(combined_plot, legend, nrow=2, heights=c(8.5,2), top = "NPV plots for p = 0.5, 5 drugs and 10 AEs setting")
+npv_plot_file <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/plots/setting_5d_10ae/p_0_5/npv.png"
+ggsave(filename = npv_plot_file, plot = combined_npv_plot)
+```
+
+```{r fscore_plots}
+#fscore plots
+#confidence thresholds
+mean_fscore_conf <- c(as.numeric(conf_results_beta1[5,]), as.numeric(conf_results_beta10[5,]), as.numeric(conf_results_beta50[5,]), as.numeric(conf_results_beta100[5,]), as.numeric(conf_results_beta1_dep_0_3[5,]), as.numeric(conf_results_beta10_dep_0_3[5,]), as.numeric(conf_results_beta50_dep_0_3[5,]), as.numeric(conf_results_beta100_dep_0_3[5,]), as.numeric(conf_results_beta1_dep_neg0_3[5,]), as.numeric(conf_results_beta10_dep_neg0_3[5,]), as.numeric(conf_results_beta50_dep_neg0_3[5,]), as.numeric(conf_results_beta100_dep_neg0_3[5,]), as.numeric(conf_results_beta1_dep_0_5[5,]), as.numeric(conf_results_beta10_dep_0_5[5,]),  as.numeric(conf_results_beta50_dep_0_5[5,]), as.numeric(conf_results_beta100_dep_0_5[5,]), as.numeric(conf_results_beta1_dep_neg0_5[5,]), as.numeric(conf_results_beta10_dep_neg0_5[5,]),  as.numeric(conf_results_beta50_dep_neg0_5[5,]), as.numeric(conf_results_beta100_dep_neg0_5[5,]), as.numeric(conf_results_beta1_dep_0_7[5,]), as.numeric(conf_results_beta10_dep_0_7[5,]), as.numeric(conf_results_beta50_dep_0_7[5,]), as.numeric(conf_results_beta100_dep_0_7[5,]), as.numeric(conf_results_beta1_dep_neg0_7[5,]), as.numeric(conf_results_beta10_dep_neg0_7[5,]), as.numeric(conf_results_beta50_dep_neg0_7[5,]), as.numeric(conf_results_beta100_dep_neg0_7[5,]))
+
+#prr thresholds
+mean_fscore_prr <- c(as.numeric(prr_results_beta1[5,]), as.numeric(prr_results_beta10[5,]), as.numeric(prr_results_beta50[5,]), as.numeric(prr_results_beta100[5,]), as.numeric(prr_results_beta1_dep_0_3[5,]), as.numeric(prr_results_beta10_dep_0_3[5,]), as.numeric(prr_results_beta50_dep_0_3[5,]), as.numeric(prr_results_beta100_dep_0_3[5,]), as.numeric(prr_results_beta1_dep_neg0_3[5,]), as.numeric(prr_results_beta10_dep_neg0_3[5,]), as.numeric(prr_results_beta50_dep_neg0_3[5,]), as.numeric(prr_results_beta100_dep_neg0_3[5,]), as.numeric(prr_results_beta1_dep_0_5[5,]), as.numeric(prr_results_beta10_dep_0_5[5,]), as.numeric(prr_results_beta50_dep_0_5[5,]), as.numeric(prr_results_beta100_dep_0_5[5,]), as.numeric(prr_results_beta1_dep_neg0_5[5,]), as.numeric(prr_results_beta10_dep_neg0_5[5,]), as.numeric(prr_results_beta50_dep_neg0_5[5,]), as.numeric(prr_results_beta100_dep_neg0_5[5,]), as.numeric(prr_results_beta1_dep_0_7[5,]), as.numeric(prr_results_beta10_dep_0_7[5,]), as.numeric(prr_results_beta50_dep_0_7[5,]), as.numeric(prr_results_beta100_dep_0_7[5,]), as.numeric(prr_results_beta1_dep_neg0_7[5,]), as.numeric(prr_results_beta10_dep_neg0_7[5,]), as.numeric(prr_results_beta50_dep_neg0_7[5,]), as.numeric(prr_results_beta100_dep_neg0_7[5,]))
+
+#rr thresholds
+mean_fscore_rr <- c(as.numeric(rr_results_beta1[5,]), as.numeric(rr_results_beta10[5,]), as.numeric(rr_results_beta50[5,]), as.numeric(rr_results_beta100[5,]), as.numeric(rr_results_beta1_dep_0_3[5,]), as.numeric(rr_results_beta10_dep_0_3[5,]), as.numeric(rr_results_beta50_dep_0_3[5,]), as.numeric(rr_results_beta100_dep_0_3[5,]), as.numeric(rr_results_beta1_dep_neg0_3[5,]), as.numeric(rr_results_beta10_dep_neg0_3[5,]), as.numeric(rr_results_beta50_dep_neg0_3[5,]), as.numeric(rr_results_beta100_dep_neg0_3[5,]), as.numeric(rr_results_beta1_dep_0_5[5,]), as.numeric(rr_results_beta10_dep_0_5[5,]), as.numeric(rr_results_beta50_dep_0_5[5,]), as.numeric(rr_results_beta100_dep_0_5[5,]), as.numeric(rr_results_beta1_dep_neg0_5[5,]), as.numeric(rr_results_beta10_dep_neg0_5[5,]), as.numeric(rr_results_beta50_dep_neg0_5[5,]), as.numeric(rr_results_beta100_dep_neg0_5[5,]), as.numeric(rr_results_beta1_dep_0_7[5,]), as.numeric(rr_results_beta10_dep_0_7[5,]), as.numeric(rr_results_beta50_dep_0_7[5,]), as.numeric(rr_results_beta100_dep_0_7[5,]), as.numeric(rr_results_beta1_dep_neg0_7[5,]), as.numeric(rr_results_beta10_dep_neg0_7[5,]), as.numeric(rr_results_beta50_dep_neg0_7[5,]), as.numeric(rr_results_beta100_dep_neg0_7[5,]))
+
+#ror thresholds
+mean_fscore_ror <- c(as.numeric(ror_results_beta1[5,]), as.numeric(ror_results_beta10[5,]), as.numeric(ror_results_beta50[5,]), as.numeric(ror_results_beta100[5,]), as.numeric(ror_results_beta1_dep_0_3[5,]), as.numeric(ror_results_beta10_dep_0_3[5,]), as.numeric(ror_results_beta50_dep_0_3[5,]), as.numeric(ror_results_beta100_dep_0_3[5,]), as.numeric(ror_results_beta1_dep_neg0_3[5,]), as.numeric(ror_results_beta10_dep_neg0_3[5,]), as.numeric(ror_results_beta50_dep_neg0_3[5,]), as.numeric(ror_results_beta100_dep_neg0_3[5,]), as.numeric(ror_results_beta1_dep_0_5[5,]), as.numeric(ror_results_beta10_dep_0_5[5,]), as.numeric(ror_results_beta50_dep_0_5[5,]), as.numeric(ror_results_beta100_dep_0_5[5,]), as.numeric(ror_results_beta1_dep_neg0_5[5,]), as.numeric(ror_results_beta10_dep_neg0_5[5,]), as.numeric(ror_results_beta50_dep_neg0_5[5,]), as.numeric(ror_results_beta100_dep_neg0_5[5,]), as.numeric(ror_results_beta1_dep_0_7[5,]), as.numeric(ror_results_beta10_dep_0_7[5,]), as.numeric(ror_results_beta50_dep_0_7[5,]), as.numeric(ror_results_beta100_dep_0_7[5,]), as.numeric(ror_results_beta1_dep_neg0_7[5,]), as.numeric(ror_results_beta10_dep_neg0_7[5,]), as.numeric(ror_results_beta50_dep_neg0_7[5,]), as.numeric(ror_results_beta100_dep_neg0_7[5,]))
+
+g1 <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_fscore_conf, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=conf_thresh, y=mean_fscore_conf, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean fscore", x="Confidence thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g2 <- ggplot() + 
+  geom_line(aes(x=prr_thresh, y=mean_fscore_prr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=prr_thresh, y=mean_fscore_prr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean fscore", x="PRR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g3 <- ggplot() + 
+  geom_line(aes(x=rr_thresh, y=mean_fscore_rr, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=rr_thresh, y=mean_fscore_rr, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean fscore", x="RR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+g4 <- ggplot() + 
+  geom_line(aes(x=ror_thresh, y=mean_fscore_ror, color=corr, linetype=betas, group=interaction(betas, corr), alpha=0.5)) + 
+  geom_point(aes(x=ror_thresh, y=mean_fscore_ror, shape=betas, color=corr, group=interaction(betas, corr), alpha=0.5)) +
+  ylim(0,1) +
+  scale_shape_manual(values = c(15,16,17,18)) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f")) +
+  labs(y="Mean fscore", x="ROR thresholds") +
+  theme(legend.position = "none", axis.text=element_text(size=8),
+        axis.title=element_text(size=8))
+
+combined_plot <- grid.arrange(g1, g2, g3, g4, nrow=2, ncol=2)
+
+g1_legend <- ggplot() + 
+  geom_line(aes(x=conf_thresh, y=mean_fscore_conf, color=corr, linetype=betas, group=interaction(betas, corr))) + 
+  geom_point(aes(x=conf_thresh, y=mean_fscore_conf, shape=betas, color=corr, group=interaction(betas, corr))) + 
+  ylim(0,1) +
+  labs(y="Mean fscore", x="Confidence thresholds") + 
+  scale_color_discrete(name=greeks("rho")) +
+  #scale_shape_discrete(name=greeks("rho")) +
+  scale_shape_manual(values = c(15,16,17,18), name=greeks("beta")) +
+  scale_color_manual(values = c("#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f"), name=greeks("rho")) +
+  scale_linetype_discrete(name=greeks("beta")) +
+  theme(legend.position = "bottom", axis.text=element_text(size=8),
+        axis.title=element_text(size=8), legend.title = element_text(size=10, face="bold"), 
+        legend.text = element_text(size=8))
+
+#function to extract legend from plot
+get_only_legend <- function(plot) {
+  plot_table <- ggplot_gtable(ggplot_build(plot))
+  legend_plot <- which(sapply(plot_table$grobs, function(x) x$name) == "guide-box")
+  legend <- plot_table$grobs[[legend_plot]]
+  return(legend)
+}
+
+#extract legend from g1 using above function
+legend <- get_only_legend(g1_legend)
+
+#final combined plot with common legend
+combined_fscore_plot <- grid.arrange(combined_plot, legend, nrow=2, heights=c(8.5,2), top = "F-score plots for p = 0.5, 5 drugs and 10 AEs setting")
+fscore_plot_file <- "/Users/reetikasarkar/Dropbox/My Mac (Reetika’s MacBook Pro)/Documents/dissertation_research/apriori_project/codes/plots/setting_5d_10ae/p_0_5/fscore.png"
+ggsave(filename = fscore_plot_file, plot = combined_fscore_plot)
+```
